@@ -1,6 +1,9 @@
 # - baseline 1: WTMB -> if schedulable, immediately schedule on any available processor
 # (start serial, parallelizing in obvious way)
+# Extreme preservation of locality at the cost of cpu utilization
 
+from __future__ import division
+import math
 
 print "Start process of computing multi-processor schedule with baseline 1"
 
@@ -18,6 +21,7 @@ graph = { 0: [2, 3],
           4: [],
           1: [3]}
 
+
 def find_edge(graph, start, end):
     # path = path + [start]
     if start == end:
@@ -32,10 +36,17 @@ def find_edge(graph, start, end):
 # print find_edge(graph, 'A', 'B')
 # print find_edge(graph, 'E', 'D')
 
+
 def baseline1(graph, pnum, tnum):
 
-    # for n in range(pnum):
-    #     pr_schedule[n] = []
+    l = int(math.ceil(tnum / pnum))
+
+    # print l
+
+    for n in range(pnum):
+        pr_schedule.append([None] * l)
+        # print(sum(x is None for x in pr_schedule[n]))
+    # print pr_schedule
 
     for n in range(tnum):
         # raw_input("Press Enter to continue...")
@@ -45,6 +56,7 @@ def baseline1(graph, pnum, tnum):
                 print single_schedule[m], " to ", single_schedule[n], " found!"
                 raw_input("Press Enter to continue...")
             else:
+                pr_schedule
                 continue
 
 
