@@ -22,6 +22,15 @@ graph = { 0: [2, 3],
           1: [3]}
 
 
+def pr_schedule_init(pnum, tnum):
+    l = int(math.ceil(tnum / pnum))
+    # print l
+
+    for n in range(pnum):
+        pr_schedule.append([None] * l)
+    print(sum(x is None for x in pr_schedule[n]))
+    print pr_schedule
+
 def find_edge(graph, start, end):
     # path = path + [start]
     if start == end:
@@ -36,28 +45,49 @@ def find_edge(graph, start, end):
 # print find_edge(graph, 'A', 'B')
 # print find_edge(graph, 'E', 'D')
 
+# Always find the schedule with most empty slots; break ties arbitrarily.
+def find_processor(pr_schedule):
+    max = 0
+    processor = -1
+    for item in pr_schedule:
+        tmp = sum(x is None for x in item)
+        if tmp > max:
+            max = tmp
+            processor = pr_schedule.index(item)
+    if processor == -1:
+        print "No slot available now!"
+        return
+    else:
+        return processor
+
+
+def assign_task(pr_schedule, task):
+    processor = find_processor(pr_schedule)
+    index = pr_schedule[processor].index(next(slot for slot in pr_schedule[processor] if slot is None))
+    print index
+    pr_schedule[processor][index] = task
+    print "Task ", task, "assigned to processor ", processor, " at slot ", index
 
 def baseline1(graph, pnum, tnum):
 
-    l = int(math.ceil(tnum / pnum))
-
-    # print l
-
-    for n in range(pnum):
-        pr_schedule.append([None] * l)
-        # print(sum(x is None for x in pr_schedule[n]))
-    # print pr_schedule
+    pr_schedule_init(pnum, tnum)
 
     for n in range(tnum):
         # raw_input("Press Enter to continue...")
         print "Now scheduling ", single_schedule[n]
+
         for m in range(n):
             if find_edge(graph, single_schedule[m], single_schedule[n]):
-                print single_schedule[m], " to ", single_schedule[n], " found!"
-                raw_input("Press Enter to continue...")
-            else:
-                pr_schedule
-                continue
+                print single_schedule[m], " to ", single_schedule[n], " found! Wait for ", \
+                    single_schedule[m], " to finish before proceeding"
+                # raw_input("Wait until it's finished! Press enter to continue...")
+                # break
+
+        assign_task(pr_schedule, single_schedule[n])
+
+    print pr_schedule
 
 
+# pr_schedule_init(pnum, tnum)
+# assign_task(pr_schedule, task)
 baseline1(graph, pnum, tnum)
