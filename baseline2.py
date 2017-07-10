@@ -5,7 +5,7 @@
 from __future__ import division
 import math
 
-print "Start process of computing multi-processor schedule with baseline 1"
+print "Start process of computing multi-processor schedule with baseline 2"
 
 pnum = int(raw_input("Number of processors:"))
 tnum = int(raw_input("Number of tasks:"))
@@ -50,9 +50,36 @@ def find_edge(graph, start, end):
         return True
     return False
 
+
+# Check if there's any edge between any task (from start to end) and end task.
+def find_dependencies(graph, start, end):
+    flag = False
+    for n in range(start, end):
+        if find_edge(graph, n, end):
+            flag = True
+            return flag
+            break
+        else:
+            flag = False
+    return flag
+
+
 # print find_edge(graph, 'A', 'C')
 # print find_edge(graph, 'A', 'B')
 # print find_edge(graph, 'E', 'D')
+
+# Return the original index if schedulable, otherwise return the next schedulable one.
+def find_next_schedulable(graph, single_schedule, index):
+    flag = True
+
+    if not find_dependencies(graph, 0, index):
+        return index
+    elif index+1 <= tnum and find_dependencies(graph, 0, index):
+        find_next_schedulable(graph, single_schedule, index+1)
+    else:
+        return index
+
+
 
 # Always find the schedule with most empty slots; break ties arbitrarily.
 def find_processor(pr_schedule):
@@ -77,24 +104,20 @@ def assign_task(pr_schedule, task):
     pr_schedule[processor][index] = task
     print "Task ", task, "assigned to processor ", processor, " at slot ", index
 
-def baseline1(graph, pnum, tnum):
+def baseline2(graph, pnum, tnum):
 
     pr_schedule_init(pnum, tnum)
 
     index = 0
 
-    while single_schedule:
-        print "Now scheduling ", single_schedule
+    while single_schedule != [None]*tnum:
+        print "Now scheduling ", single_schedule[index]
 
-        for m in range(index):
-            if find_edge(graph, single_schedule[m], single_schedule[index]):
-                print single_schedule[m], " to ", single_schedule[index], " found! Will check the next task in line"
-                break
+        for n in range(tnum):
+            if single_schedule[m] != None:
+                assign_task(pr_schedule, single_schedule[n])
+                single_schedule[index] = None
 
-        assign_task(pr_schedule, single_schedule[n])
-        single_schedule[index] = None
-
-        index = index + 1
 
     print pr_schedule
 
