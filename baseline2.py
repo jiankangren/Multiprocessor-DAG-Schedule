@@ -40,6 +40,7 @@ def pr_schedule_init(pnum, tnum):
     print(sum(x is None for x in pr_schedule[n]))
     print pr_schedule
 
+
 def find_edge(graph, start, end):
     # path = path + [start]
     if start == end:
@@ -80,15 +81,14 @@ def find_next_schedulable(graph, single_schedule, index):
         return index
 
 
-
 # Always find the schedule with most empty slots; break ties arbitrarily.
 def find_processor(pr_schedule):
-    max = 0
+    tmax = 0
     processor = -1
     for item in pr_schedule:
         tmp = sum(x is None for x in item)
-        if tmp > max:
-            max = tmp
+        if tmp > tmax:
+            tmax = tmp
             processor = pr_schedule.index(item)
     if processor == -1:
         print "No slot available now!"
@@ -114,10 +114,13 @@ def baseline2(graph, pnum, tnum):
         print "Now scheduling ", single_schedule[index]
 
         for n in range(tnum):
-            if single_schedule[m] != None:
-                assign_task(pr_schedule, single_schedule[n])
-                single_schedule[index] = None
-
+            if single_schedule[n]:
+                next_to_schedule = find_next_schedulable(graph, single_schedule, n)
+                assign_task(pr_schedule, single_schedule[next_to_schedule])
+                print single_schedule[next_to_schedule], " is successfully scheduled!\n"
+                single_schedule[next_to_schedule] = None
+            else:
+                print single_schedule[next_to_schedule], " is already out-of-order scheduled!!!"
 
     print pr_schedule
 
