@@ -12,7 +12,16 @@ tnum = int(raw_input("Number of tasks:"))
 arian = raw_input(("Input the single-thread schedule:"))
 
 single_schedule = map(int, arian.split(' '))
+
 print single_schedule
+
+single_schedule_intact = list(single_schedule)
+
+assigned_sofar = list()
+
+delayed_index = list()
+delayed = list()
+
 pr_schedule = []
 
 graph = { 0: [7, 11],
@@ -52,16 +61,14 @@ def find_edge(graph, start, end):
     return False
 
 
-# Check if there's any edge between any task (from start to end) and end task.
-def find_dependencies(graph, start, end):
+# Check if there's any edge between any assigned task and goal task.
+def find_dependencies(graph, single_schedule, assigned_sofar, index):
     flag = False
-    for n in range(start, end):
-        if find_edge(graph, n, end):
+    for assigned in assigned_sofar:
+        if find_edge(graph, assigned, single_schedule[index]):
             flag = True
             return flag
             break
-        else:
-            flag = False
     return flag
 
 
@@ -70,15 +77,31 @@ def find_dependencies(graph, start, end):
 # print find_edge(graph, 'E', 'D')
 
 # Return the original index if schedulable, otherwise return the next schedulable one.
-def find_next_schedulable(graph, single_schedule, index):
+def find_next_schedulable(graph, single_schedule, assigned_sofar, index):
     flag = True
 
-    if not find_dependencies(graph, 0, index):
+    if not find_dependencies(graph, single_schedule, assigned_sofar, index):
+        print "NOT DEPENDENT ON PREVIOUS TASKS, CAN BE SCHEDULED $$$"
         return index
-    elif index+1 <= tnum and find_dependencies(graph, 0, index):
-        find_next_schedulable(graph, single_schedule, index+1)
     else:
-        return index
+        #if index+1 < tnum:
+        #    find_next_schedulable(graph, single_schedule, index+1)
+        #else:
+        #    return index
+
+        for m in range(index+1, tnum):
+            if single_schedule[m] != None:
+                flag = find_dependencies(graph, single_schedule, assigned_sofar, m)
+                if not flag:
+                    print "DEPENDENT! WILL SCHEDULE Index: ", m, " Task: ", single_schedule[m], "INSTEAD ***"
+                    delayed_index.append(index)
+                    delayed.append(single_schedule[index])
+                    return m
+                    break
+
+        if flag:
+            "DEPENDENT, BUT NO INDEPENDENT TASK CAN BE FOUND! WILL SCHEDULE IT ANYWAY ~~~"
+            return index
 
 
 # Always find the schedule with most empty slots; break ties arbitrarily.
@@ -100,7 +123,7 @@ def find_processor(pr_schedule):
 def assign_task(pr_schedule, task):
     processor = find_processor(pr_schedule)
     index = pr_schedule[processor].index(next(slot for slot in pr_schedule[processor] if slot is None))
-    print index
+    #print index
     pr_schedule[processor][index] = task
     print "Task ", task, "assigned to processor ", processor, " at slot ", index
 
@@ -110,23 +133,39 @@ def baseline2(graph, pnum, tnum):
 
     index = 0
 
-    while single_schedule != [None]*tnum:
-        print "Now scheduling ", single_schedule[index]
+    # while single_schedule != [None]*tnum:
 
-        for n in range(tnum):
-            if single_schedule[n]:
-                next_to_schedule = find_next_schedulable(graph, single_schedule, n)
-                assign_task(pr_schedule, single_schedule[next_to_schedule])
-                print single_schedule[next_to_schedule], " is successfully scheduled!\n"
-                single_schedule[next_to_schedule] = None
-            else:
-                print single_schedule[next_to_schedule], " is already out-of-order scheduled!!!"
+    for n in range(tnum):
+        if len(delayed) > 2:
+            for k in delayed_index:
+                print "Have to schedule DELAYED task: ", single_schedule[k]
+                assign_task(pr_schedule, single_schedule[k])
+                print single_schedule[k], " is (FINALLY) successfully scheduled!\n"
+                single_schedule[k] = None
+            del delayed[:]
+
+        print "Now scheduling ", single_schedule[n]
+        if single_schedule[n] != None:
+            print "Index ", n, "in schedule is not None, can be scheduled!"
+            next_to_schedule = find_next_schedulable(graph, single_schedule, assigned_sofar, n)
+            print "To be scheduled is index: ", next_to_schedule
+            assign_task(pr_schedule, single_schedule[next_to_schedule])
+            assigned_sofar.append(single_schedule[next_to_schedule])
+            print single_schedule[next_to_schedule], " is successfully scheduled!\n"
+            single_schedule[next_to_schedule] = None
+        else:
+            print "Already out-of-order scheduled!!!\n"
+
+
 
     print pr_schedule
+    print single_schedule
+    print delayed
+    print single_schedule_intact
 
 
 
 
 # pr_schedule_init(pnum, tnum)
 # assign_task(pr_schedule, task)
-baseline1(graph, pnum, tnum)
+baseline2(graph, pnum, tnum)

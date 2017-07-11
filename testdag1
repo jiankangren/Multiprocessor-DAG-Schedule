@@ -1,5 +1,25 @@
-query20:
+0:
+create materialized view v_catalog_sales as select * from catalog_sales;
 
+1:
+create materialized view v_catalog_returns as select * from catalog_returns;
+
+2:
+create materialized view v_inventory as select * from inventory;
+
+3:
+create materialized view v_date_dim as select * from date_dim;
+
+4:
+create materialized view v_store_sales as select * from store_sales;
+
+5:
+create materialized view v_item as select * from item;
+
+6:
+create materialized view v_warehouse as select * from warehouse;
+
+7:
 select  i_item_desc 
        ,i_category 
        ,i_class 
@@ -7,9 +27,9 @@ select  i_item_desc
        ,sum(cs_ext_sales_price) as itemrevenue 
        ,sum(cs_ext_sales_price)*100/sum(sum(cs_ext_sales_price)) over
            (partition by i_class) as revenueratio
- from catalog_sales
-     ,item 
-     ,date_dim
+ from v_catalog_sales
+     ,v_item 
+     ,v_date_dim
  where cs_item_sk = i_item_sk 
    and i_category in ('Jewelry', 'Sports', 'Books')
    and cs_sold_date_sk = d_date_sk
@@ -28,8 +48,7 @@ select  i_item_desc
 limit 100;
 
 
-query21:
-
+8:
 select  *
  from(select w_warehouse_name
             ,i_item_id
@@ -39,10 +58,10 @@ select  *
             ,sum(case when (cast(d_date as date) >= cast ('1998-04-08' as date))
                       then inv_quantity_on_hand 
                       else 0 end) as inv_after
-   from inventory
-       ,warehouse
-       ,item
-       ,date_dim
+   from v_inventory
+       ,v_warehouse
+       ,v_item
+       ,v_date_dim
    where i_current_price between 0.99 and 1.49
      and i_item_sk          = inv_item_sk
      and inv_warehouse_sk   = w_warehouse_sk
@@ -59,17 +78,16 @@ select  *
  limit 100;
 
 
- query22:
-
+ 9:
  select  i_product_name
              ,i_brand
              ,i_class
              ,i_category
              ,avg(inv_quantity_on_hand) qoh
-       from inventory
-           ,date_dim
-           ,item
-           ,warehouse
+       from v_inventory
+           ,v_date_dim
+           ,v_item
+           ,v_warehouse
        where inv_date_sk=d_date_sk
               and inv_item_sk=i_item_sk
               and inv_warehouse_sk = w_warehouse_sk
@@ -82,31 +100,28 @@ order by qoh, i_product_name, i_brand, i_class, i_category
 limit 100;
 
 
-query3:
-
+10:
 select  dt.d_year 
-       ,item.i_brand_id brand_id 
-       ,item.i_brand brand
+       ,v_item.i_brand_id brand_id 
+       ,v_item.i_brand brand
        ,sum(ss_ext_sales_price) sum_agg
- from  date_dim dt 
-      ,store_sales
-      ,item
- where dt.d_date_sk = store_sales.ss_sold_date_sk
-   and store_sales.ss_item_sk = item.i_item_sk
-   and item.i_manufact_id = 436
+from  v_date_dim dt 
+      ,v_store_sales
+      ,v_item
+ where dt.d_date_sk = v_store_sales.ss_sold_date_sk
+   and v_store_sales.ss_item_sk = v_item.i_item_sk
+   and v_item.i_manufact_id = 436
    and dt.d_moy=12
  group by dt.d_year
-      ,item.i_brand
-      ,item.i_brand_id
+      ,v_item.i_brand
+      ,v_item.i_brand_id
  order by dt.d_year
          ,sum_agg desc
          ,brand_id
  limit 100;
 
-
-query40:
-
-select  
+ 11:
+ select  
    w_state
   ,i_item_id
   ,sum(case when (cast(d_date as date) < cast ('1998-04-08' as date)) 
@@ -114,12 +129,12 @@ select
   ,sum(case when (cast(d_date as date) >= cast ('1998-04-08' as date)) 
  		then cs_sales_price - coalesce(cr_refunded_cash,0) else 0 end) as sales_after
  from
-   catalog_sales left outer join catalog_returns on
+   v_catalog_sales left outer join v_catalog_returns on
        (cs_order_number = cr_order_number 
         and cs_item_sk = cr_item_sk)
-  ,warehouse 
-  ,item
-  ,date_dim
+  ,v_warehouse 
+  ,v_item
+  ,v_date_dim
  where
      i_current_price between 0.99 and 1.49
  and i_item_sk          = cs_item_sk
@@ -133,31 +148,29 @@ select
 limit 100;
 
 
-query42:
-
+12:
 select  dt.d_year
- 	,item.i_category_id
- 	,item.i_category
+ 	,v_item.i_category_id
+ 	,v_item.i_category
  	,sum(ss_ext_sales_price)
- from 	date_dim dt
- 	,store_sales
- 	,item
- where dt.d_date_sk = store_sales.ss_sold_date_sk
- 	and store_sales.ss_item_sk = item.i_item_sk
- 	and item.i_manager_id = 1  	
+ from 	v_date_dim dt
+ 	,v_store_sales
+ 	,v_item
+ where dt.d_date_sk = v_store_sales.ss_sold_date_sk
+ 	and v_store_sales.ss_item_sk = v_item.i_item_sk
+ 	and v_item.i_manager_id = 1  	
  	and dt.d_moy=12
  	and dt.d_year=1998
  group by 	dt.d_year
- 		,item.i_category_id
- 		,item.i_category
+ 		,v_item.i_category_id
+ 		,v_item.i_category
  order by       sum(ss_ext_sales_price) desc,dt.d_year
- 		,item.i_category_id
- 		,item.i_category
+ 		,v_item.i_category_id
+ 		,v_item.i_category
 limit 100;
 
 
-query98:
-
+13:
 select i_item_desc 
       ,i_category 
       ,i_class 
@@ -166,9 +179,9 @@ select i_item_desc
       ,sum(ss_ext_sales_price)*100/sum(sum(ss_ext_sales_price)) over
           (partition by i_class) as revenueratio
 from	
-	store_sales
-    	,item 
-    	,date_dim
+	v_store_sales
+    	,v_item 
+    	,v_date_dim
 where 
 	ss_item_sk = i_item_sk 
   	and i_category in ('Jewelry', 'Sports', 'Books')
