@@ -3,7 +3,8 @@
 # - 3b: if we schedule a job out-of-sequence and it uses a new data item, then recompute WTMB schedule for the suffix
 # 3a is implemented.
 
-#TODO: ADD THE CHECK for already-accessed-in-prefix
+# ADD THE CHECK for already-accessed-in-prefix
+
 from __future__ import division
 import math
 
