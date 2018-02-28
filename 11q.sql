@@ -1,3 +1,9 @@
+drop materialized view v_call_center, v_catalog_sales, v_catalog_page, v_catalog_returns,
+v_customer, v_customer_address, v_customer_demographics, v_date_dim, v_household_demographics,
+v_item, v_promotion, v_ship_mode, v_store, v_store_returns, v_store_sales, v_time_dim,
+v_warehouse, v_web_returns, v_web_sales, v_web_site;
+
+
 #q0
 create materialized view v_call_center as select * from call_center;
 
@@ -50,20 +56,20 @@ create materialized view v_time_dim as select * from time_dim;
 create materialized view v_warehouse as select * from warehouse;
 
 #q17
-create materialized view v_web_returns select * from web_returns;
+create materialized view v_web_returns as select * from web_returns;
 
 #q18
-create materialized view v_web_sales select * from web_sales;
+create materialized view v_web_sales as select * from web_sales;
 
 #q19
-create materialized view v_web_site select * from web_site;
+create materialized view v_web_site as select * from web_site;
 
 #q20 - query15
 select  ca_zip
        ,sum(cs_sales_price)
  from v_catalog_sales
      ,v_customer
-     ,v_customer_addressv_
+     ,v_customer_address
      ,v_date_dim
  where cs_bill_customer_sk = c_customer_sk
  	and c_current_addr_sk = ca_address_sk 
