@@ -22,6 +22,7 @@ create materialized view v_item as select * from item;
 create materialized view v_warehouse as select * from warehouse;
 
 7:
+create materialized view v7 as 
 select  i_item_desc 
        ,i_category 
        ,i_class 
@@ -51,6 +52,7 @@ limit 100;
 
 
 8:
+create materialized view v8 as 
 select  *
  from(select w_warehouse_name
             ,i_item_id
@@ -81,6 +83,7 @@ select  *
 
 
  9:
+ create materialized view v9 as
  select  i_product_name
              ,i_brand
              ,i_class
@@ -103,6 +106,7 @@ limit 100;
 
 
 10:
+create materialized view v10 as
 select  dt.d_year 
        ,v_item.i_brand_id brand_id 
        ,v_item.i_brand brand
@@ -123,6 +127,7 @@ from  v_date_dim dt
  limit 100;
 
  11:
+ create materialized view v11 as
  select  
    w_state
   ,i_item_id
@@ -151,6 +156,7 @@ limit 100;
 
 
 12:
+create materialized view v12 as 
 select  dt.d_year
  	,v_item.i_category_id
  	,v_item.i_category
@@ -173,6 +179,7 @@ limit 100;
 
 
 13:
+create materialized view v13 as
 select i_item_desc 
       ,i_category 
       ,i_class 
