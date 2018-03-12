@@ -1,7 +1,7 @@
 14 (7*9):
 create materialized view v14 as
 select i_item_desc 
-       ,i_category 
+       ,v7.i_category 
        ,v7.i_class
        i_product_name
 from v7, v9;
@@ -45,18 +45,19 @@ from v14, v10;
 create materialized view v18 as 
 select i_item_desc 
        ,i_category 
-       ,v7.i_class
        ,i_product_name
        ,w_warehouse_name
        ,i_item_id
        ,inv_before 
        ,inv_after
        ,sum_agg
-from v14, v15;
+from v14, v15
+limit 50000000;
 
 19(15*16):
 create materialized view v19 as 
 select  inv_after
         ,sum_agg
-        v16.i_item_id
-from v15, v16;
+        i_item_id
+from v15, v16
+limit 50000000;
