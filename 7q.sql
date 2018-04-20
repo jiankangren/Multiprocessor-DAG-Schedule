@@ -1,6 +1,6 @@
 drop materialized view v_catalog_sales, v_catalog_returns, v_inventory, v_date_dim, v_store_sales, v_item, v_warehouse;
 drop materialized view v_catalog_sales, v_catalog_returns, v_inventory, v_date_dim, v_store_sales, v_item, v_warehouse, v7, v8, v9, v10, v11, v12, v13;
-drop materialized view v_catalog_sales, v_catalog_returns, v_inventory, v_date_dim, v_store_sales, v_item, v_warehouse, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19;
+drop materialized view v_catalog_sales, v_catalog_returns, v_inventory, v_date_dim, v_item, v_warehouse, v7, v8, v9, v11;
 
 
 0:
@@ -10,21 +10,26 @@ create materialized view v_catalog_sales as select * from catalog_sales;
 create materialized view v_catalog_returns as select * from catalog_returns;
 
 2:
+EXPLAIN ANALYZE
 create materialized view v_inventory as select * from inventory;
 
 3:
+EXPLAIN ANALYZE
 create materialized view v_date_dim as select * from date_dim;
 
 4:
 create materialized view v_store_sales as select * from store_sales;
 
 5:
+EXPLAIN ANALYZE
 create materialized view v_item as select * from item;
 
 6:
+EXPLAIN ANALYZE
 create materialized view v_warehouse as select * from warehouse;
 
 7:
+EXPLAIN ANALYZE
 create materialized view v7 as 
 select  i_item_desc 
        ,i_category 
@@ -55,6 +60,7 @@ limit 100;
 
 
 8:
+EXPLAIN ANALYZE
 create materialized view v8 as
 select  *
  from(select w_warehouse_name
@@ -86,6 +92,7 @@ select  *
 
 
  9:
+ EXPLAIN ANALYZE
  create materialized view v9 as
  select  i_product_name
              ,i_brand
@@ -109,6 +116,7 @@ limit 100;
 
 
 10:
+EXPLAIN ANALYZE
 create materialized view v10 as
 select  dt.d_year 
        ,v_item.i_brand_id brand_id
@@ -130,6 +138,7 @@ from  v_date_dim dt
  limit 100;
 
  11:
+ EXPLAIN ANALYZE
  create materialized view v11 as
  select
    w_state
@@ -159,6 +168,7 @@ limit 100;
 
 
 12:
+EXPLAIN ANALYZE
 create materialized view v12 as
 select  dt.d_year
  	,v_item.i_category_id
@@ -182,6 +192,7 @@ limit 100;
 
 
 13:
+EXPLAIN ANALYZE
 create materialized view v13 as
 select i_item_desc 
       ,i_category 
