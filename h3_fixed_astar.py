@@ -45,6 +45,7 @@ graph = {0: [7, 11, 18],
          19: [20],
          20: []}
 
+
 def pr_schedule_init(pnum, tnum):
     l = int(math.ceil(tnum / pnum))
     # print l
@@ -171,6 +172,8 @@ def h3(graph, pnum, tnum):
     print single_schedule_intact
 
 
+
+
 # pr_schedule_init(pnum, tnum)
 # assign_task(pr_schedule, task)
 
@@ -179,9 +182,10 @@ def h3(graph, pnum, tnum):
 # If this task is out of order, then the program will re-compute the schedule for remaining tasks.
 # Break the loop with 66666 when the DAG is completed.
 while True:
-    Finished = int(raw_input("Task # completed on processor #: "))
-    if Finished == 66666:
+    newDoneTask = int(raw_input("Task # completed on processor #: "))
+    if newDoneTask == 66666:
+        print "All tasks scheduled! Job scheduling completed. "
         break
     else:
+
         continue
-h3(graph, pnum, tnum)
