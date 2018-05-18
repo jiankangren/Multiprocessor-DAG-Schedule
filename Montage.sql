@@ -1,6 +1,6 @@
 drop materialized view v_catalog_sales, v_catalog_returns, v_inventory, v_date_dim, v_store_sales, v_item, v_warehouse;
 
-drop materialized view v_catalog_sales, v_catalog_returns, v_inventory, v_date_dim, v_store_sales, v_item, v_warehouse, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19;
+drop materialized view v_catalog_sales, v_catalog_returns, v_inventory, v_date_dim, v_store_sales, v_item, v_warehouse, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20;
 
 
 0:
@@ -280,6 +280,6 @@ limit 50000000;
 20:
 create materialized view v20 as 
 select  v19.inv_after
-        v19.sum_agg
+        ,v19.sum_agg
 from v19
 limit 50000000;
