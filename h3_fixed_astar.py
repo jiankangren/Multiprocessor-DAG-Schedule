@@ -23,27 +23,34 @@ delayed = list()
 
 pr_schedule = []
 
-graph = {0: [7, 11, 18],
-         1: [11],
-         2: [8, 9],
-         3: [8, 9, 11, 7, 10, 12, 13, 17],
-         4: [10, 12, 13, 16],
-         5: [8, 9, 11, 7, 10, 12, 13],
-         6: [8, 9, 11],
-         7: [14],
-         8: [14],
-         9: [14],
-         10: [14],
-         11: [14],
-         12: [14],
-         13: [14],
-         14: [15],
-         15: [16, 17, 18],
-         16: [19],
-         17: [19],
-         18: [19],
-         19: [20],
-         20: []}
+# Deeper 7Q
+d2 = {0: [7, 11],
+          1: [11],
+          2: [8, 9],
+          3: [8, 9, 11, 7, 10, 12, 13],
+          4: [10, 12, 13],
+          5: [8, 9, 11, 7, 10 ,12, 13],
+          6: [8, 9, 11],
+          7: [14],
+          8: [15],
+          9: [14],
+          10: [15, 17],
+          11: [16],
+          12: [],
+          13: [16],
+          14: [17, 18],
+          15: [18, 19],
+          16: [19]}
+
+weight = {0: 1,
+          1: 1,
+          2: 1}
+
+
+def wtmb_edge(graph, weight, start, end):
+    if end in graph[start]:
+        return weight[start]*1
+    else if find_edge():
 
 
 def pr_schedule_init(pnum, tnum):
@@ -55,7 +62,7 @@ def pr_schedule_init(pnum, tnum):
     print(sum(x is None for x in pr_schedule[n]))
     print pr_schedule
 
-
+# Need to be able to find edges with >1 length.
 def find_edge(graph, start, end):
     # path = path + [start]
     if start == end:
@@ -181,6 +188,9 @@ def h3(graph, pnum, tnum):
 # A task will be returned to be run on this idle processor.
 # If this task is out of order, then the program will re-compute the schedule for remaining tasks.
 # Break the loop with 66666 when the DAG is completed.
+
+
+
 while True:
     newDoneTask = int(raw_input("Task # completed on processor #: "))
     if newDoneTask == 66666:
