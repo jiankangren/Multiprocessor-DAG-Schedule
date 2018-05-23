@@ -23,8 +23,8 @@ delayed = list()
 
 pr_schedule = []
 
-# Deeper 7Q
-d2 = {0: [7, 11],
+# DAG2 - Deeper 7Q
+graph = {0: [7, 11],
           1: [11],
           2: [8, 9],
           3: [8, 9, 11, 7, 10, 12, 13],
@@ -40,17 +40,20 @@ d2 = {0: [7, 11],
           13: [16],
           14: [17, 18],
           15: [18, 19],
-          16: [19]}
+          16: [19],
+          17: [],
+          18: [],
+          19: []}
 
 weight = {0: 1,
           1: 1,
           2: 1}
 
 
-def wtmb_edge(graph, weight, start, end):
-    if end in graph[start]:
-        return weight[start]*1
-    else if find_edge():
+# def wtmb_edge(graph, weight, start, end):
+#     if end in graph[start]:
+#         return weight[start]*1
+#     else if find_edge():
 
 
 def pr_schedule_init(pnum, tnum):
@@ -61,6 +64,24 @@ def pr_schedule_init(pnum, tnum):
         pr_schedule.append([None] * l)
     print(sum(x is None for x in pr_schedule[n]))
     print pr_schedule
+
+
+def find_path(start_vertex, end_vertex, path=None):
+    """ find a path from start_vertex to end_vertex
+        in graph """
+    if path == None:
+        path = []
+    path = path + [start_vertex]
+    if start_vertex == end_vertex:
+        return path
+    if start_vertex not in graph:
+        return None
+    for vertex in graph[start_vertex]:
+        if vertex not in path:
+            extended_path = find_path(vertex, end_vertex, path)
+            if extended_path:
+                return extended_path
+    return None
 
 # Need to be able to find edges with >1 length.
 def find_edge(graph, start, end):
@@ -191,11 +212,13 @@ def h3(graph, pnum, tnum):
 
 
 
-while True:
-    newDoneTask = int(raw_input("Task # completed on processor #: "))
-    if newDoneTask == 66666:
-        print "All tasks scheduled! Job scheduling completed. "
-        break
-    else:
+# while True:
+#     newDoneTask = int(raw_input("Task # completed on processor #: "))
+#     if newDoneTask == 66666:
+#         print "All tasks scheduled! Job scheduling completed. "
+#         break
+#     else:
+#
+#         continue
 
-        continue
+print find_path(0, 18)
