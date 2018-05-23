@@ -9,7 +9,6 @@ print "Start process of computing multi-processor schedule with heuristic 3"
 pnum = int(raw_input("Number of processors:"))
 tnum = int(raw_input("Number of tasks:"))
 arian = raw_input(("Enter the starting single-thread schedule:"))
-
 single_schedule = map(int, arian.split(' '))
 
 print single_schedule
@@ -24,7 +23,7 @@ delayed = list()
 pr_schedule = []
 
 # DAG2 - Deeper 7Q
-graph = {0: [7, 11],
+d2 = {0: [7, 11],
           1: [11],
           2: [8, 9],
           3: [8, 9, 11, 7, 10, 12, 13],
@@ -66,9 +65,8 @@ def pr_schedule_init(pnum, tnum):
     print pr_schedule
 
 
-def find_path(start_vertex, end_vertex, path=None):
-    """ find a path from start_vertex to end_vertex
-        in graph """
+def find_path(graph, start_vertex, end_vertex, path=None):
+    """ find a path from start_vertex to end_vertex in graph """
     if path == None:
         path = []
     path = path + [start_vertex]
@@ -82,6 +80,23 @@ def find_path(start_vertex, end_vertex, path=None):
             if extended_path:
                 return extended_path
     return None
+
+
+def find_all_paths(graph, start_vertex, end_vertex, path=[]):
+    """ find all paths from start_vertex to end_vertex in graph """
+    path = path + [start_vertex]
+    if start_vertex == end_vertex:
+        return [path]
+    if start_vertex not in graph:
+        return []
+    paths = []
+    for vertex in graph[start_vertex]:
+        if vertex not in path:
+            extended_paths = find_all_paths(vertex, end_vertex, path)
+            for p in extended_paths:
+                paths.append(p)
+    return paths
+
 
 # Need to be able to find edges with >1 length.
 def find_edge(graph, start, end):
@@ -99,7 +114,7 @@ def find_edge(graph, start, end):
 def find_dependencies(graph, single_schedule, assigned_sofar, index):
     flag = False
     for assigned in assigned_sofar:
-        if find_edge(graph, assigned, single_schedule[index]):
+        if find_path(graph, assigned, single_schedule[index]):
             flag = True
             return flag
             break
@@ -201,7 +216,6 @@ def h3(graph, pnum, tnum):
 
 
 
-
 # pr_schedule_init(pnum, tnum)
 # assign_task(pr_schedule, task)
 
@@ -209,16 +223,25 @@ def h3(graph, pnum, tnum):
 # A task will be returned to be run on this idle processor.
 # If this task is out of order, then the program will re-compute the schedule for remaining tasks.
 # Break the loop with 66666 when the DAG is completed.
+# Assume all the first 4 tasks have been assigned.
 
+print find_path(5, 17)
+print find_all_paths(5, 17)
 
+# Count of assigned tasks.
+count = 0
 
-# while True:
-#     newDoneTask = int(raw_input("Task # completed on processor #: "))
-#     if newDoneTask == 66666:
-#         print "All tasks scheduled! Job scheduling completed. "
-#         break
-#     else:
-#
-#         continue
+while single_schedule:
+    # Initially populate the processors with one task each, i.e. the first 4 task assignment.
+    if count <= 4:
 
-print find_path(0, 18)
+        count += 1
+    else:
+        newDoneTask = int(raw_input("Task # completed on processor #: "))
+        if newDoneTask == 66666:
+            print "All tasks scheduled! Job scheduling completed. "
+            break
+        else:
+            assigned_sofar.append(newDoneTask)
+
+            continue
