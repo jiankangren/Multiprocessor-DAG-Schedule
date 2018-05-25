@@ -142,14 +142,16 @@ def find_next_schedulable(graph, single_schedule, assigned_sofar, index):
             if single_schedule[m] != None:
                 flag = find_dependencies(graph, single_schedule, assigned_sofar, m)
                 if not flag:
-                    print "DEPENDENT! WILL SCHEDULE Index: ", m, " Task: ", single_schedule[m], "INSTEAD ***"
+                    print single_schedule[index], " IS DEPENDENT, will schedule Index: ", m, " Task: ", single_schedule[m], "INSTEAD ***"
                     delayed_index.append(index)
                     delayed.append(single_schedule[index])
                     return m
                     break
+                else:
+                    print single_schedule[index], " is dependent, ", single_schedule[m], "is dependent too!"
 
         if flag:
-            "DEPENDENT, BUT NO INDEPENDENT TASK CAN BE FOUND! WILL SCHEDULE IT ANYWAY ~~~"
+            single_schedule[index], "IS DEPENDENT, BUT NO INDEPENDENT TASK CAN BE FOUND! WILL SCHEDULE IT ANYWAY ~~~"
             return index
 
 
@@ -234,7 +236,8 @@ count = 0
 while single_schedule:
     # Initially populate the processors with one task each, i.e. the first 4 task assignment.
     if count <= 4:
-
+        find_next_schedulable()
+        assign_task()
         count += 1
     else:
         newDoneTask = int(raw_input("Task # completed on processor #: "))
