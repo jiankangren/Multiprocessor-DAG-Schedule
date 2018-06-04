@@ -1,6 +1,6 @@
 drop materialized view v_catalog_sales, v_catalog_returns, v_inventory, v_date_dim, v_store_sales, v_item, v_warehouse;
 drop materialized view v_catalog_sales, v_catalog_returns, v_inventory, v_date_dim, v_store_sales, v_item, v_warehouse, v7, v8, v9, v10, v11, v12, v13;
-drop materialized view v_catalog_sales, v_catalog_returns, v_inventory, v_date_dim, v_store_sales, v_item, v_warehouse, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19;
+drop materialized view v_catalog_sales, v_catalog_returns, v_inventory, v_date_dim, v_store_sales, v_item, v_warehouse, v7, v8, v9, v10, v12, v13, v14, v15, v16;
 
 
 0:
@@ -107,6 +107,23 @@ select  *
 order by qoh, i_product_name, i_brand, i_class, i_category
 limit 100;
 
+
+9v2:
+ create materialized view v9 as
+ select  i_product_name
+             ,i_brand
+             ,i_class
+             ,i_category
+             ,inv_quantity_on_hand qoh
+             ,d_date_id
+             ,w_street_number
+             ,w_street_name
+             ,w_street_type
+       from v_inventory
+           ,v_date_dim
+           ,v_item
+           ,v_warehouse
+limit 50000000;
 
 10:
 create materialized view v10 as
@@ -220,7 +237,8 @@ select i_item_desc
        ,v7.i_category 
        ,v7.i_class
        i_product_name
-from v7, v9;
+from v7, v9
+limit 5000000;
 
 
 
@@ -254,7 +272,9 @@ select i_item_desc
        ,i_category 
        ,brand_id
        ,sum_agg
-from v14, v10;
+from v14, v10
+limit 5000000;
+
 
 
 18(14*15):
@@ -268,7 +288,7 @@ select i_item_desc
        ,inv_after
        ,sum_agg
 from v14, v15
-limit 50000000;
+limit 5000000;
 
 19(15*16):
 create materialized view v19 as 
@@ -276,4 +296,4 @@ select  inv_after
         ,sum_agg
         i_item_id
 from v15, v16
-limit 50000000;
+limit 5000000;
