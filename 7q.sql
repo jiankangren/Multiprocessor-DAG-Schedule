@@ -114,6 +114,22 @@ select  *
 order by qoh, i_product_name, i_brand, i_class, i_category
 limit 100;
 
+9v2:
+ create materialized view v9 as
+ select  i_product_name
+             ,i_brand
+             ,i_class
+             ,i_category
+             ,inv_quantity_on_hand qoh
+             ,d_date_id
+             ,w_street_number
+             ,w_street_name
+             ,w_street_type
+       from v_inventory
+           ,v_date_dim
+           ,v_item
+           ,v_warehouse
+limit 50000000;
 
 10:
 
