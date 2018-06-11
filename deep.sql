@@ -123,7 +123,7 @@ limit 100;
            ,v_date_dim
            ,v_item
            ,v_warehouse
-limit 50000000;
+limit 1000000;
 
 10:
 create materialized view v10 as
@@ -238,7 +238,7 @@ select i_item_desc
        ,v7.i_class
        i_product_name
 from v7, v9
-limit 5000000;
+limit 1000000;
 
 
 
@@ -273,7 +273,7 @@ select i_item_desc
        ,brand_id
        ,sum_agg
 from v14, v10
-limit 5000000;
+limit 1000000;
 
 
 
@@ -288,7 +288,7 @@ select i_item_desc
        ,inv_after
        ,sum_agg
 from v14, v15
-limit 5000000;
+limit 1000000;
 
 19(15*16):
 create materialized view v19 as 
@@ -296,4 +296,4 @@ select  inv_after
         ,sum_agg
         i_item_id
 from v15, v16
-limit 5000000;
+limit 1000000;
