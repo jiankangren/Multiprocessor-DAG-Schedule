@@ -1,37 +1,37 @@
-copy call_center from '/hdd1/data/handled/call_center.dat' with delimiter as '|' NULL '';
-    copy catalog_page from '/hdd1/data/handled/catalog_page.dat' with delimiter as '|' NULL '';
-    copy catalog_returns from '/hdd1/data/handled/catalog_returns.dat' with delimiter as '|' NULL '';
-    copy catalog_sales from '/hdd1/data/handled/catalog_sales.dat' with delimiter as '|' NULL '';
-    copy customer from '/hdd1/data/handled/customer.dat' with delimiter as '|' NULL '';
-    copy customer_address from '/hdd1/data/handled/customer_address.dat' with delimiter as '|' NULL '';
-    copy customer_demographics from '/hdd1/data/handled/customer_demographics.dat' with delimiter as '|' NULL '';
+copy call_center from '/hdd1/data/40g-handled/call_center.dat' with delimiter as '|' NULL '';
+    copy catalog_page from '/hdd1/data/40g-handled/catalog_page.dat' with delimiter as '|' NULL '';
+    copy catalog_returns from '/hdd1/data/40g-handled/catalog_returns.dat' with delimiter as '|' NULL '';
+    copy catalog_sales from '/hdd1/data/40g-handled/catalog_sales.dat' with delimiter as '|' NULL '';
+    copy customer from '/hdd1/data/40g-handled/customer.dat' with delimiter as '|' NULL '';
+    copy customer_address from '/hdd1/data/40g-handled/customer_address.dat' with delimiter as '|' NULL '';
+    copy customer_demographics from '/hdd1/data/40g-handled/customer_demographics.dat' with delimiter as '|' NULL '';
     
-    copy date_dim from '/hdd1/data/handled/date_dim.dat' with delimiter as '|' NULL '';
+    copy date_dim from '/hdd1/data/40g-handled/date_dim.dat' with delimiter as '|' NULL '';
     
-    copy dbgen_version from '/hdd1/data/handled/dbgen_version.dat' with delimiter as '|' NULL '';
-    copy household_demographics from '/hdd1/data/handled/household_demographics.dat' with delimiter as '|' NULL '';
-    copy income_band from '/hdd1/data/handled/income_band.dat' with delimiter as '|' NULL '';
+    copy dbgen_version from '/hdd1/data/40g-handled/dbgen_version.dat' with delimiter as '|' NULL '';
+    copy household_demographics from '/hdd1/data/40g-handled/household_demographics.dat' with delimiter as '|' NULL '';
+    copy income_band from '/hdd1/data/40g-handled/income_band.dat' with delimiter as '|' NULL '';
     
-    copy inventory from '/hdd1/data/handled/inventory.dat' with delimiter as '|' NULL '';
+    copy inventory from '/hdd1/data/40g-handled/inventory.dat' with delimiter as '|' NULL '';
     
-    copy item from '/hdd1/data/handled/item.dat' with delimiter as '|' NULL '';
+    copy item from '/hdd1/data/40g-handled/item.dat' with delimiter as '|' NULL '';
     
-    copy promotion from '/hdd1/data/handled/promotion.dat' with delimiter as '|' NULL '';
-    copy reason from '/hdd1/data/handled/reason.dat' with delimiter as '|' NULL '';
-    copy ship_mode from '/hdd1/data/handled/ship_mode.dat' with delimiter as '|' NULL '';
-    copy store from '/hdd1/data/handled/store.dat' with delimiter as '|' NULL '';
-    copy store_returns from '/hdd1/data/handled/store_returns.dat' with delimiter as '|' NULL '';
+    copy promotion from '/hdd1/data/40g-handled/promotion.dat' with delimiter as '|' NULL '';
+    copy reason from '/hdd1/data/40g-handled/reason.dat' with delimiter as '|' NULL '';
+    copy ship_mode from '/hdd1/data/40g-handled/ship_mode.dat' with delimiter as '|' NULL '';
+    copy store from '/hdd1/data/40g-handled/store.dat' with delimiter as '|' NULL '';
+    copy store_returns from '/hdd1/data/40g-handled/store_returns.dat' with delimiter as '|' NULL '';
     
-    copy store_sales from '/hdd1/data/handled/store_sales.dat' with delimiter as '|' NULL '';
+    copy store_sales from '/hdd1/data/40g-handled/store_sales.dat' with delimiter as '|' NULL '';
     
-    copy time_dim from '/hdd1/data/handled/time_dim.dat' with delimiter as '|' NULL '';
+    copy time_dim from '/hdd1/data/40g-handled/time_dim.dat' with delimiter as '|' NULL '';
     
-    copy warehouse from '/hdd1/data/handled/warehouse.dat' with delimiter as '|' NULL '';
+    copy warehouse from '/hdd1/data/40g-handled/warehouse.dat' with delimiter as '|' NULL '';
     
-    copy web_page from '/hdd1/data/handled/web_page.dat' with delimiter as '|' NULL '';
-    copy web_returns from '/hdd1/data/handled/web_returns.dat' with delimiter as '|' NULL '';
-    copy web_sales from '/hdd1/data/handled/web_sales.dat' with delimiter as '|' NULL '';
-    copy web_site from '/hdd1/data/handled/web_site.dat' with delimiter as '|' NULL '';
+    copy web_page from '/hdd1/data/40g-handled/web_page.dat' with delimiter as '|' NULL '';
+    copy web_returns from '/hdd1/data/40g-handled/web_returns.dat' with delimiter as '|' NULL '';
+    copy web_sales from '/hdd1/data/40g-handled/web_sales.dat' with delimiter as '|' NULL '';
+    copy web_site from '/hdd1/data/40g-handled/web_site.dat' with delimiter as '|' NULL '';
 
 
 
