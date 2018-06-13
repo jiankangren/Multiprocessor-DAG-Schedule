@@ -1,5 +1,5 @@
 drop materialized view v_catalog_sales, v_catalog_returns, v_inventory, v_date_dim, v_store_sales, v_item, v_warehouse;
-drop materialized view v_catalog_sales, v_catalog_returns, v_inventory, v_date_dim, v_store_sales, v_item, v_warehouse, v7, v8, v10, v11, v12, v13;
+drop materialized view v_catalog_sales, v_catalog_returns, v_inventory, v_date_dim, v_store_sales, v_item, v_warehouse, v7, v10, v11, v12, v13;
 drop materialized view v_catalog_sales, v_catalog_returns, v_inventory, v_date_dim, v_item, v_warehouse, v7, v8, v9, v11;
 
 
