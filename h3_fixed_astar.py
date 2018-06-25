@@ -99,7 +99,6 @@ def find_all_paths(graph, start_vertex, end_vertex, path=[]):
     return paths
 
 
-# Need to be able to find edges with >1 length.
 def find_edge(graph, start, end):
     # path = path + [start]
     if start == end:
@@ -526,9 +525,8 @@ while single_schedule:
 
 
             index += 1
-            print("--- %s seconds ---" % (time.time() - start_time))
+            print("--- %s seconds ---" % (time.time() - start_time)) is index: ", index
 
-is index: ", index
         assign_task(pr_schedule, single_schedule[index])
         assigned_sofar.append(single_schedule[index])
         print single_schedule[index], " is successfully scheduled!\n"

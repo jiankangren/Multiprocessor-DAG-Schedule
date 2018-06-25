@@ -49,7 +49,6 @@ weight = {0: 1,
           1: 1,
           2: 1}
 
-
 # def wtmb_edge(graph, weight, start, end):
 #     if end in graph[start]:
 #         return weight[start]*1
@@ -66,40 +65,18 @@ def pr_schedule_init(pnum, tnum):
     print pr_schedule
 
 
-def find_path(graph, start_vertex, end_vertex, path=None):
-    """ find a path from start_vertex to end_vertex in graph """
-    if path == None:
-        path = []
-    path = path + [start_vertex]
-    if start_vertex == end_vertex:
-        return path
-    if start_vertex not in graph:
-        return None
-    for vertex in graph[start_vertex]:
-        if vertex not in path:
-            extended_path = find_path(vertex, end_vertex, path)
-            if extended_path:
-                return extended_path
-    return None
-
-
-def find_all_paths(graph, start_vertex, end_vertex, path=[]):
-    """ find all paths from start_vertex to end_vertex in graph """
-    path = path + [start_vertex]
-    if start_vertex == end_vertex:
-        return [path]
-    if start_vertex not in graph:
-        return []
-    paths = []
-    for vertex in graph[start_vertex]:
-        if vertex not in path:
-            extended_paths = find_all_paths(vertex, end_vertex, path)
-            for p in extended_paths:
-                paths.append(p)
-    return paths
-
-
 # Need to be able to find edges with >1 length.
+#def find_edge(graph, start, end):
+    # path = path + [start]
+#    if start == end:
+#        return False
+#    if not graph.has_key(start):
+#        return False
+#    if end in graph[start]:
+#        return True
+#    return False
+
+# Only finds successors.
 def find_edge(graph, start, end):
     # path = path + [start]
     if start == end:
@@ -110,23 +87,87 @@ def find_edge(graph, start, end):
         return True
     return False
 
+# Finds grandchildren as well.
+def find_path(graph,start,end, path=[]) :
+    path=path+[start]
+    if start==end :
+        return path
+    if not graph.has_key(start) :
+        return None
+    else :
+        for node in graph[start] :
+                 if node not in path:
+                    newpath = find_path(graph, node, end, path)
+                 if newpath :
+                    return newpath
+        return None
 
-# Check if there's any edge between any assigned task and goal task.
-def find_dependencies(graph, single_schedule, assigned_sofar, index):
-    flag = False
-    for assigned in assigned_sofar:
-        if find_path(graph, assigned, single_schedule[index]):
-            flag = True
-            return flag
-            break
-    return flag
+
+def find_successors(graph, target):
+    successors = []
+    task_list = list(range(0, tnum))
+    for i in task_list:
+            if i != target and find_edge(graph, target, i):
+                successors.append(i)
+    
+    return successors
+
+def find_all_ancestors(graph, target):
+    ancestors = []
+    task_list = list(range(0, tnum))
+    for i in task_list:
+            if i != target and find_path(graph, i, target):
+                ancestors.append(i)
+    
+    return ancestors
 
 
-# print find_edge(graph, 'A', 'C')
-# print find_edge(graph, 'A', 'B')
-# print find_edge(graph, 'E', 'D')
+def check_schedulable(graph, assigned_sofar, task):
+    if set(assigned_sofar).issuperset(find_all_ancestors(graph, task)):
+        return True
+    else:
+        return False
 
-# Return the original index if schedulable, otherwise return the next schedulable one.
+
+# Basically the get_cands function in paper.
+def find_schedulables(graph, assigned_sofar):
+    schedulables = []
+    for task in range(tnum):
+        if (task not in assigned_sofar) and check_schedulable(graph, assigned_sofar, task):
+            schedulables.append(task)
+    
+    return schedulables
+
+# Distance between u's last successor and u.
+def max_distance(task, successors, assigned_sofar):
+    u = assigned_sofar.index(task)
+    temp = u
+    #print "u is ", u
+    for t in successors:
+        if assigned_sofar.index(t) > temp:
+            temp = assigned_sofar.index(t)
+            #print temp," for task ", t
+    return temp - u
+
+def tmb_cost(graph, assigned_sofar):
+    #schedulables = find_schedulables(graph, assigned_sofar)
+    tmb = 0
+    for task in assigned_sofar:
+        successors = find_successors(graph, task)
+        if successors == []:
+            print "Triggerred 1, no successors"
+            continue
+        elif set(assigned_sofar).issuperset(successors):
+            tmb += max_distance(task, successors, assigned_sofar)
+            print "Triggerred 2, all successors scheduled"
+        else:
+            tmb += len(assigned_sofar) - assigned_sofar.index(task)
+            print "Triggerred 3"
+
+        print "Task ", task, " cost has been added, tmb is now ", tmb
+    return tmb
+
+# Find the next schedulable in a greedy way.
 def find_next_schedulable(graph, single_schedule, assigned_sofar, index):
     flag = True
 
@@ -187,7 +228,7 @@ def assign_task_to_core(pr_schedule, task, core):
     pr_schedule[processor][index] = task
     print "Task ", task, "assigned to processor ", processor, " at slot ", index
 
-def h3(graph, pnum, tnum):
+def h5(graph, pnum, tnum):
 
     pr_schedule_init(pnum, tnum)
 
@@ -233,20 +274,17 @@ def h3(graph, pnum, tnum):
 # Break the loop with 66666 when the DAG is completed.
 # Assume all the first 4 tasks have been assigned.
 
-#print find_path(5, 17)
-#print find_all_paths(5, 17)
-
 # Count of assigned tasks.
 
 pr_schedule_init(pnum, tnum)
 index = 0
 
-while single_schedule:
+while index < tnum:
     # Initially populate the processors with one task each, i.e. the first 4 task assignment.
     if index < 4:
         start_time = time.time()
         print "Starting phase - first 4 tasks "
-        print "To be scheduled is index: ", index
+        print "To be scheduled is index: " + index
         assign_task(pr_schedule, single_schedule[index])
         assigned_sofar.append(single_schedule[index])
         print single_schedule[index], " is successfully scheduled!\n"
@@ -263,7 +301,7 @@ while single_schedule:
 
         if newDoneTask == 66666:
             print "All tasks scheduled! Job scheduling completed. "
-            break
+            break 
 
         else:
             start_time = time.time()
@@ -273,7 +311,7 @@ while single_schedule:
                 assign_task_to_core(pr_schedule, single_schedule[next_to_schedule], newIdleCore)
                 assigned_sofar.append(single_schedule[index])
                 single_schedule[next_to_schedule] = None
-            else:
+            else: 
 
 
 
