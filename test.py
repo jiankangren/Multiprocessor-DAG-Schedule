@@ -5,7 +5,7 @@ from __future__ import division
 import math
 import time
 
-tnum = 20
+tnum = 6
 
 graph = {0: [7, 11],
           1: [11],
@@ -59,7 +59,7 @@ def find_all_ancestors(graph, target):
     ancestors = []
     task_list = list(range(0, tnum))
     for i in task_list:
-            if i != target and find_path(graph, i, target):
+            if i != target and (find_path(graph, i, target) != None):
                 ancestors.append(i)
     
     return ancestors
@@ -123,21 +123,46 @@ def find_successors(graph, target):
 def tmb_cost(graph, assigned_sofar):
     #schedulables = find_schedulables(graph, assigned_sofar)
     tmb = 0
+    print "assigned_sofar ", assigned_sofar
     for task in assigned_sofar:
         successors = find_successors(graph, task)
         if successors == []:
-            print "Triggerred 1, no successors"
+            #print "Triggerred 1, no successors"
             continue
         elif set(assigned_sofar).issuperset(successors):
             tmb += max_distance(task, successors, assigned_sofar)
-            print "Triggerred 2, all successors scheduled"
+            #print "Triggerred 2, all successors scheduled"
         else:
             tmb += len(assigned_sofar) - assigned_sofar.index(task)
-            print "Triggerred 3"
+            #print "Triggerred 3"
 
-        print "Task ", task, " cost has been added, tmb is now ", tmb
+        #print "Task ", task, " cost has been added, tmb is now ", tmb
+    #print tmb
     return tmb
 
+def find_next_schedulable(graph, assigned_sofar):
+    flag = True
+    #print assigned_sofar
+    schedulables = find_schedulables(graph, assigned_sofar)
+    print "schedulables ", schedulables
+    # Greedy.
+    #init = assigned_sofar
+    #init.append(schedulables[0])
+    # print " init ", init
+    #cost = tmb_cost(graph, init)
+    cost = 1000000
+    fav = schedulables[0]
+    print "init cost: ", cost
+    for task in schedulables:
+        assigned_sofar.append(task)
+        new_cost = tmb_cost(graph, assigned_sofar)
+        if new_cost < cost:
+            cost = new_cost
+            fav = task
+            print "new best cost ", cost, " for task ", task
+        assigned_sofar.pop()
+    print "The best: ", fav
+    return fav
 
 if __name__ == "__main__":
     # print find_path(graph, 0, 18)
@@ -148,5 +173,6 @@ if __name__ == "__main__":
     # print find_schedulables(graph, [3,2,5,6])
     # print find_succesors(graph, 4)
     # print max_distance(4, [10,12,13], [0,4,10,6,13,8,7,12])
-    print tmb_cost(g, [0,1,2,4])
+    # print tmb_cost(g, [0,1,2,4])
+     print find_next_schedulable(g, [1])
   #find_all_ancestors(graph, 10)

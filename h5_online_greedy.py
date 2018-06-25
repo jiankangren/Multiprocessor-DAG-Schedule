@@ -4,8 +4,10 @@
 from __future__ import division
 import math
 import time
+import copy
 
-print "Start process of computing multi-processor schedule with heuristic 3"
+
+print "Start process of computing multi-processor schedule with heuristic 5"
 
 pnum = int(raw_input("Number of processors:"))
 tnum = int(raw_input("Number of tasks:"))
@@ -17,14 +19,32 @@ print single_schedule
 single_schedule_intact = list(single_schedule)
 
 assigned_sofar = list()
+finished_sofar = list()
 
 delayed_index = list()
 delayed = list()
 
 pr_schedule = []
 
+# DAG1 - 7Q
+d1 = {0: [7, 11],
+         1: [11],
+         2: [8, 9],
+         3: [8, 9, 11, 7, 10, 12, 13],
+         4: [10, 12, 13],
+         5: [8, 9, 11, 7, 10, 12, 13],
+         6: [8, 9, 11],
+         7: [],
+         8: [],
+         9: [],
+         10: [],
+         11: [],
+         12: [],
+         13: []}
+
+
 # DAG2 - Deeper 7Q
-graph = {0: [7, 11],
+d2 = {0: [7, 11],
           1: [11],
           2: [8, 9],
           3: [8, 9, 11, 7, 10, 12, 13],
@@ -44,6 +64,60 @@ graph = {0: [7, 11],
           17: [],
           18: [],
           19: []}
+
+# DAG3 from Arian
+d3 = { 0: [4, 8],
+          1: [8],
+          2: [13, 17],
+          3: [17],
+          4: [5, 6, 7],
+          5: [],
+          6: [],
+          7: [],
+          8: [9, 17],
+          9: [10, 11, 12],
+          10: [],
+          11: [],
+          12: [],
+          13: [14, 15, 16],
+          14: [],
+          15: [],
+          16: [],
+          17: [18],
+          18: [19, 20, 21],
+          19: [],
+          20: [],
+          21: []}
+
+#SIPHT i.e. dag4.
+graph  = {0: [12],
+         1: [12],
+         2: [12],
+         3: [12],
+         4: [19],
+         5: [19],
+         6: [19],
+         7: [19],
+         8: [19],
+         9: [19],
+         10: [19],
+         11: [19],
+         12: [13, 14, 15, 16, 17, 18],
+         13: [14],
+         14: [18],
+         15: [18],
+         16: [18],
+         17: [18],
+         18: [],
+         19: [18]}
+
+# Example graph.
+test = {0: [3],
+     1: [4, 2],
+     2: [5, 3],
+     3: [],
+     4: [],
+     5: []}
 
 weight = {0: 1,
           1: 1,
@@ -102,6 +176,15 @@ def find_path(graph,start,end, path=[]) :
                     return newpath
         return None
 
+# Basically the same as check_schedulable.
+def find_dependencies(graph, assigned_sofar, task):
+    flag = False
+    for assigned in assigned_sofar:
+        if find_path(graph, assigned, task):
+            flag = True
+            return flag
+            break
+    return flag
 
 def find_successors(graph, target):
     successors = []
@@ -116,7 +199,7 @@ def find_all_ancestors(graph, target):
     ancestors = []
     task_list = list(range(0, tnum))
     for i in task_list:
-            if i != target and find_path(graph, i, target):
+            if i != target and (find_path(graph, i, target) != None):
                 ancestors.append(i)
     
     return ancestors
@@ -152,49 +235,54 @@ def max_distance(task, successors, assigned_sofar):
 def tmb_cost(graph, assigned_sofar):
     #schedulables = find_schedulables(graph, assigned_sofar)
     tmb = 0
+    #print "assigned_sofar ", assigned_sofar
     for task in assigned_sofar:
         successors = find_successors(graph, task)
         if successors == []:
-            print "Triggerred 1, no successors"
+            #print "Triggerred 1, no successors"
             continue
         elif set(assigned_sofar).issuperset(successors):
             tmb += max_distance(task, successors, assigned_sofar)
-            print "Triggerred 2, all successors scheduled"
+            #print "Triggerred 2, all successors scheduled"
         else:
             tmb += len(assigned_sofar) - assigned_sofar.index(task)
-            print "Triggerred 3"
+            #print "Triggerred 3"
 
-        print "Task ", task, " cost has been added, tmb is now ", tmb
+        #print "Task ", task, " cost has been added, tmb is now ", tmb
+    #print tmb
     return tmb
 
 # Find the next schedulable in a greedy way.
-def find_next_schedulable(graph, single_schedule, assigned_sofar, index):
+def find_next_schedulable(graph, assigned_sofar, to_remove):
     flag = True
+    #print assigned_sofar
+    all_schedulables = find_schedulables(graph, assigned_sofar)
+    # need to remove all the assigned tasks from all schedulables.
+    schedulables = [x for x in all_schedulables if x not in to_remove]
+    print "schedulables ", schedulables
+    # Greedy.
+    #init = assigned_sofar
+    #init.append(schedulables[0])
+    # print " init ", init
+    #cost = tmb_cost(graph, init)
 
-    if not find_dependencies(graph, single_schedule, assigned_sofar, index):
-        print "NOT DEPENDENT ON PREVIOUS TASKS, CAN BE SCHEDULED $$$"
-        return index
+    cost = 1000000
+    if not schedulables:
+        print "No more schedulable task at this time... :( "
+        return 88888
     else:
-        #if index+1 < tnum:
-        #    find_next_schedulable(graph, single_schedule, index+1)
-        #else:
-        #    return index
-
-        for m in range(index+1, tnum):
-            if single_schedule[m] != None:
-                flag = find_dependencies(graph, single_schedule, assigned_sofar, m)
-                if not flag:
-                    print single_schedule[index], " IS DEPENDENT, will schedule Index: ", m, " Task: ", single_schedule[m], "INSTEAD ***"
-                    delayed_index.append(index)
-                    delayed.append(single_schedule[index])
-                    return m
-                    break
-                else:
-                    print single_schedule[index], " is dependent, ", single_schedule[m], "is dependent too!"
-
-        if flag:
-            single_schedule[index], "IS DEPENDENT, BUT NO INDEPENDENT TASK CAN BE FOUND! WILL SCHEDULE IT ANYWAY ~~~"
-            return index
+        fav = schedulables[0]
+    #print "init cost: ", cost
+        for task in schedulables:
+            assigned_sofar.append(task)
+            new_cost = tmb_cost(graph, assigned_sofar)
+            if new_cost < cost:
+                cost = new_cost
+                fav = task
+                print "new best cost ", cost, " for task ", task
+            assigned_sofar.pop()
+        #print "The best: ", fav
+    return fav
 
 
 # Always find the schedule with most empty slots; break ties arbitrarily.
@@ -228,45 +316,6 @@ def assign_task_to_core(pr_schedule, task, core):
     pr_schedule[processor][index] = task
     print "Task ", task, "assigned to processor ", processor, " at slot ", index
 
-def h5(graph, pnum, tnum):
-
-    pr_schedule_init(pnum, tnum)
-
-    index = 0
-
-    # while single_schedule != [None]*tnum:
-
-    for n in range(tnum):
-
-        print "Now scheduling ", single_schedule[n]
-        if single_schedule[n] != None:
-            print "Index ", n, "in schedule is not None, can be scheduled!"
-            next_to_schedule = find_next_schedulable(graph, single_schedule, assigned_sofar, n)
-            print "To be scheduled is index: ", next_to_schedule
-            assign_task(pr_schedule, single_schedule[next_to_schedule])
-            assigned_sofar.append(single_schedule[next_to_schedule])
-            print single_schedule[next_to_schedule], " is successfully scheduled!\n"
-            single_schedule[next_to_schedule] = None
-        else:
-            print "Already out-of-order scheduled!!!\n"
-
-    if len(delayed) > 0:
-        for k in delayed_index:
-            print "Have to schedule DELAYED task: ", single_schedule[k]
-            assign_task(pr_schedule, single_schedule[k])
-            print single_schedule[k], " is (FINALLY) successfully scheduled!\n"
-            single_schedule[k] = None
-
-    print delayed
-    del delayed[:]
-
-
-    print pr_schedule
-    print single_schedule
-#   print delayed
-    print single_schedule_intact
-
-
 
 # As job runs, inform this program whenever a task is finished and a processor becomes idle.
 # A task will be returned to be run on this idle processor.
@@ -276,45 +325,58 @@ def h5(graph, pnum, tnum):
 
 # Count of assigned tasks.
 
-pr_schedule_init(pnum, tnum)
-index = 0
+if __name__ == "__main__":
 
-while index < tnum:
-    # Initially populate the processors with one task each, i.e. the first 4 task assignment.
-    if index < 4:
-        start_time = time.time()
-        print "Starting phase - first 4 tasks "
-        print "To be scheduled is index: " + index
-        assign_task(pr_schedule, single_schedule[index])
-        assigned_sofar.append(single_schedule[index])
-        print single_schedule[index], " is successfully scheduled!\n"
-        single_schedule[index] = None
-        index += 1
-        print("--- %s seconds ---" % (time.time() - start_time))
+    pr_schedule_init(pnum, tnum)
+    index = 0
+    count = 0
 
-    else:
-        if index >= tnum:
-            print "All tasks scheduled! Job scheduling completed. "
-            break
-
-        newDoneTask, newIdleCore = int(input("Task # completed on processor # split by a comma: "))
-
-        if newDoneTask == 66666:
-            print "All tasks scheduled! Job scheduling completed. "
-            break 
+    while count < tnum:
+        # Initially populate the processors with one task each, i.e. the first 4 task assignment.
+        if index < 4:
+            start_time = time.time()
+            print "Starting phase - first 4 tasks "
+            print "To be scheduled is: ", single_schedule[index]
+            assign_task(pr_schedule, single_schedule[index])
+            assigned_sofar.append(single_schedule[index])
+            print single_schedule[index], " is successfully scheduled!\n"
+            single_schedule[index] = None
+            #if index == 3:
+             #   finished_sofar = copy.copy(assigned_sofar)
+            index += 1
+            count += 1
+            print("--- %s seconds ---" % (time.time() - start_time))
 
         else:
-            start_time = time.time()
-            print "To be scheduled is index: ", index
-            next_to_schedule = find_next_schedulable(graph, single_schedule, assigned_sofar, index)
-            if (next_to_schedule == index):
-                assign_task_to_core(pr_schedule, single_schedule[next_to_schedule], newIdleCore)
-                assigned_sofar.append(single_schedule[index])
-                single_schedule[next_to_schedule] = None
-            else: 
+            if count >= tnum:
+                print "All tasks scheduled! Job scheduling completed. "
+                break
+
+            newDoneTask, newIdleCore = input("Task # completed on processor # split by a comma: ")
+
+            if newDoneTask == 66666:
+                print "All tasks scheduled! Job scheduling completed. "
+                break 
+
+            else:
+                start_time = time.time()
+                finished_sofar.append(newDoneTask)
+                todo = find_next_schedulable(graph, finished_sofar, assigned_sofar)
+                if todo != 88888:
+                    print "The next todo is: ", todo
+                    assign_task(pr_schedule, todo)
+                    assigned_sofar.append(todo)
+                    print todo, " is successfully scheduled!\n"
+                    #single_schedule[single_schedule.index(to do)] = None
+                    count += 1
+                    print("--- %s seconds ---" % (time.time() - start_time))
+                else:
+                    print "No more schedulable task atm, wait for another task to finish! "
+                    continue
 
 
-
-            index += 1
-            print("--- %s seconds ---" % (time.time() - start_time))
+    print pr_schedule
+    print single_schedule
+#   print delayed
+    print single_schedule_intact
 
