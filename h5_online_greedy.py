@@ -1,5 +1,4 @@
-# h5: get an starting schedule from a* first, then re-compute with that fixed prefix every time
-# a task is scheduled out of order.
+# h5: get an starting schedule from a* first, then assign the tasks in an online greedy fashion.
 
 from __future__ import division
 import math
