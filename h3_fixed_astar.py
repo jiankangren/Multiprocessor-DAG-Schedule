@@ -32,17 +32,18 @@ d1 = {0: [7, 11],
          4: [10, 12, 13],
          5: [8, 9, 11, 7, 10, 12, 13],
          6: [8, 9, 11],
-         7: [],
-         8: [],
-         9: [],
-         10: [],
-         11: [],
-         12: [],
-         13: []}
+         7: [14],
+         8: [14],
+         9: [14],
+         10: [14],
+         11: [14],
+         12: [14],
+         13: [14],
+         14: []}
 
 
 # DAG2 - Deeper 7Q
-d2 = {0: [7, 11],
+graph = {0: [7, 11],
           1: [11],
           2: [8, 9],
           3: [8, 9, 11, 7, 10, 12, 13],
@@ -110,14 +111,14 @@ d4  = {0: [12],
          19: [18]}
 
 # Example graph.
-graph = {'start': [0, 1],
+ex = {
      0: [3],
      1: [4, 2],
      2: [5, 3],
-     3: ['sink'],
-     4: ['sink'],
-     5: ['sink'],
-     'sink': []}
+     3: [6],
+     4: [6],
+     5: [6],
+     6: []}
 
 weight = {0: 1,
           1: 1,
@@ -216,7 +217,7 @@ def find_all_ancestors(graph, target):
     for i in task_list:
             if i != target and (find_path(graph, i, target) != None):
                 ancestors.append(i)
-    
+
     return ancestors
 
 
@@ -290,30 +291,65 @@ def hx(graph, assigned_sofar, task):
     # print "s = ", assigned_sofar
     for i in range(tnum):
         if i not in assigned_sofar:
-            print "cost of ", i, len(graph[i])
+            # print "cost of ", i, len(graph[i])
             cost += len(graph[i])  
     assigned_sofar.pop()
     # print "s = ", assigned_sofar
     return cost  
 
 
+def all_roots(graph):
+    roots = []
+    for i in range(tnum):
+        if not find_all_ancestors(graph, i):
+            roots.append(i)
+    return roots
 
-# Find the next schedulable in an a*star way with recomputation.
+
+def find_one_root_candidates(graph, start, end, path=[]):
+        path = path + [start]
+
+        if start == end:
+            return [path]
+
+        if not graph.has_key(start):
+            return None
+
+        paths = []
+        for node in find_schedulables(graph, path):
+            if node not in path:
+                newpaths = find_one_root_candidates(graph, node, end, path)
+                for newpath in newpaths:
+                    paths.append(newpath)
+        return paths
+
+
+def find_all_candidates(graph, end):
+    roots = all_roots(graph)
+    #print "roots ", roots
+    paths = []
+    for root in roots:
+        #print root
+        paths += find_one_root_candidates(graph, root, end)
+
+    return paths
+
+
 def find_next_schedulable(graph, paths, single_schedule, index, finished_sofar, assigned_sofar):
     flag = True
-    path_bool = False # Indicate whether a path with a certain prefix exists
+    path_bool = False  # Indicate whether a path with a certain prefix exists
     fav = -12345
 
-    #print assigned_sofar
+    # print assigned_sofar
     all_schedulables = find_schedulables(graph, finished_sofar)
     # need to remove all the assigned but not finished tasks from all schedulables.
     schedulables = [x for x in all_schedulables if x not in assigned_sofar]
     print "schedulables ", schedulables
     # Greedy.
-    #init = assigned_sofar
-    #init.append(schedulables[0])
+    # init = assigned_sofar
+    # init.append(schedulables[0])
     # print " init ", init
-    #cost = tmb_cost(graph, init)
+    # cost = tmb_cost(graph, init)
 
 
     cost = 1000000
@@ -331,30 +367,31 @@ def find_next_schedulable(graph, paths, single_schedule, index, finished_sofar, 
             print "OLD assigned_sofar ", assigned_sofar
 
             for task in schedulables:
-              prefix = copy.copy(single_schedule[0:index])
-              prefix.append(task)
+                prefix = copy.copy(single_schedule[0:index])
+                prefix.append(task)
+                print "-- prefix ", prefix
 
-              for path in paths:
-                if path[0:index+1] == prefix:
-                  print "Path exists ", path, " with prefix ", prefix
-                  path_bool = True
-                  break
+                for path in paths:
+                    #print "-- -- path ", path
+                    if path[0:index + 1] == prefix:
+                        print "Path exists ", path, " with prefix ", prefix
+                        path_bool = True
+                        break
 
-              prefix.pop()
+                prefix.pop()
 
-              if path_bool:
-                new_cost = hx(graph, prefix, task) + gx(graph, prefix, task)
-                print "New cost: ", new_cost
-                if new_cost < cost:
-                  cost = new_cost
-                  fav = task
-                  print "New best ", fav, " with cost ", cost
-              else:
-                break
+                if path_bool:
+                    new_cost = hx(graph, prefix, task) + gx(graph, prefix, task)
+                    #print "New cost: ", new_cost
+                    if new_cost < cost:
+                        cost = new_cost
+                        fav = task
+                        print "New best ", fav, " with cost ", cost
+
 
             return fav
 
-        else:  
+        else:
             fav = single_schedule[index]
             return fav
 
@@ -404,7 +441,8 @@ if __name__ == "__main__":
     pr_schedule_init(pnum, tnum)
     index = 0
     count = 0
-    paths = find_all_paths(graph, 'start', 'sink')
+    paths = find_all_candidates(graph, tnum-1)
+    #print "paths ", paths
 
     while count < tnum:
         # Initially populate the processors with one task each, i.e. the first 4 task assignment.
@@ -436,7 +474,7 @@ if __name__ == "__main__":
             else:
                 start_time = time.time()
                 finished_sofar.append(newDoneTask)
-                todo = find_next_schedulable(graph, finished_sofar, assigned_sofar)
+                todo = find_next_schedulable(graph, paths, single_schedule, index, finished_sofar, assigned_sofar)
                 if todo != 88888:
                     print "The next todo is: ", todo
                     assign_task(pr_schedule, todo)
@@ -452,6 +490,7 @@ if __name__ == "__main__":
 
     print pr_schedule
     print single_schedule
+    print assigned_sofar
 #   print delayed
     print single_schedule_intact
 
