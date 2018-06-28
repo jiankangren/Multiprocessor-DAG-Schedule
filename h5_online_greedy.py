@@ -118,9 +118,26 @@ test = {0: [3],
      4: [],
      5: []}
 
-weight = {0: 1,
-          1: 1,
-          2: 1}
+weight = {0: 2920,
+          1: 225,
+          2: 4038,
+          3: 11,
+          4: 5621,
+          5: 1466,
+          6: 374,
+          7: 111,
+          8: 42,
+          9: 170,
+          10: 103,
+          11: 54,
+          12: 1,
+          13: 1,
+          14: 1,
+          15: 1,
+          16: 1,
+          17: 1,
+          18: 1,
+          19: 1}
 
 # def wtmb_edge(graph, weight, start, end):
 #     if end in graph[start]:
@@ -241,10 +258,10 @@ def tmb_cost(graph, assigned_sofar):
             #print "Triggerred 1, no successors"
             continue
         elif set(assigned_sofar).issuperset(successors):
-            tmb += max_distance(task, successors, assigned_sofar)
+            tmb += weight[task] * max_distance(task, successors, assigned_sofar)
             #print "Triggerred 2, all successors scheduled"
         else:
-            tmb += len(assigned_sofar) - assigned_sofar.index(task)
+            tmb += weight[task] * (len(assigned_sofar) - assigned_sofar.index(task))
             #print "Triggerred 3"
 
         #print "Task ", task, " cost has been added, tmb is now ", tmb
