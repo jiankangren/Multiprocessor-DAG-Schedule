@@ -110,12 +110,14 @@ d4  = {0: [12],
          19: [18]}
 
 # Example graph.
-graph = {0: [3],
+graph = {'start': [0, 1],
+     0: [3],
      1: [4, 2],
      2: [5, 3],
-     3: [],
-     4: [],
-     5: []}
+     3: ['sink'],
+     4: ['sink'],
+     5: ['sink'],
+     'sink': []}
 
 weight = {0: 1,
           1: 1,
@@ -172,6 +174,22 @@ def find_path(graph,start,end, path=[]) :
                  if newpath :
                     return newpath
         return None
+
+
+def find_all_paths(graph, start, end, path=[]):
+    path = path + [start]
+    if start == end:
+        return [path]
+    if not graph.has_key(start):
+        return None
+    paths = []
+    for node in graph[start]:
+        if node not in path:
+            newpaths = find_all_paths(graph, node, end, path)
+            for newpath in newpaths:
+                paths.append(newpath)
+    return paths
+
 
 # Basically the same as check_schedulable.
 def find_dependencies(graph, assigned_sofar, task):
@@ -253,6 +271,7 @@ def tmb_cost(graph, assigned_sofar):
     return tmb
 
 
+
 # Cost of the path from the start node to x. 
 # In our case it's (w)tmb_cost(s).
 def gx(graph, assigned_sofar, task):
@@ -278,12 +297,16 @@ def hx(graph, assigned_sofar, task):
     return cost  
 
 
+
 # Find the next schedulable in an a*star way with recomputation.
-def find_next_schedulable(graph, single_schedule, index, finished_sofar, assigned_sofar):
+def find_next_schedulable(graph, paths, single_schedule, index, finished_sofar, assigned_sofar):
     flag = True
+    path_bool = False # Indicate whether a path with a certain prefix exists
+    fav = -12345
+
     #print assigned_sofar
     all_schedulables = find_schedulables(graph, finished_sofar)
-    # need to remove all the assigned tasks from all schedulables.
+    # need to remove all the assigned but not finished tasks from all schedulables.
     schedulables = [x for x in all_schedulables if x not in assigned_sofar]
     print "schedulables ", schedulables
     # Greedy.
@@ -292,7 +315,10 @@ def find_next_schedulable(graph, single_schedule, index, finished_sofar, assigne
     # print " init ", init
     #cost = tmb_cost(graph, init)
 
+
     cost = 1000000
+    new_cost = 999999
+
     if not schedulables:
         print "No more schedulable task at this time... :( "
         return 88888
@@ -300,28 +326,37 @@ def find_next_schedulable(graph, single_schedule, index, finished_sofar, assigne
         if single_schedule[index] not in schedulables:
             # return the first schedulable next in the single_schedule.
             # Then recompute.
-            fav = next(x for x in single_schedule if x in schedulables)
-            print fav
-            
+            print "Uh-oh, ", single_schedule[index], " is not schedulable yet"
+            print "OLD single_schedule ", single_schedule
+            print "OLD assigned_sofar ", assigned_sofar
+
+            for task in schedulables:
+              prefix = copy.copy(single_schedule[0:index])
+              prefix.append(task)
+
+              for path in paths:
+                if path[0:index+1] == prefix:
+                  print "Path exists ", path, " with prefix ", prefix
+                  path_bool = True
+                  break
+
+              prefix.pop()
+
+              if path_bool:
+                new_cost = hx(graph, prefix, task) + gx(graph, prefix, task)
+                print "New cost: ", new_cost
+                if new_cost < cost:
+                  cost = new_cost
+                  fav = task
+                  print "New best ", fav, " with cost ", cost
+              else:
+                break
 
             return fav
+
         else:  
             fav = single_schedule[index]
             return fav
-
-        
-        fav = schedulables[0]
-    #print "init cost: ", cost
-        for task in schedulables:
-            finished_sofar.append(task)
-            new_cost = tmb_cost(graph, finished_sofar)
-            if new_cost < cost:
-                cost = new_cost
-                fav = task
-                print "new best cost ", cost, " for task ", task
-            finished_sofar.pop()
-        #print "The best: ", fav
-    return fav
 
 
 # Always find the schedule with most empty slots; break ties arbitrarily.
@@ -369,6 +404,7 @@ if __name__ == "__main__":
     pr_schedule_init(pnum, tnum)
     index = 0
     count = 0
+    paths = find_all_paths(graph, 'start', 'sink')
 
     while count < tnum:
         # Initially populate the processors with one task each, i.e. the first 4 task assignment.
@@ -379,7 +415,7 @@ if __name__ == "__main__":
             assign_task(pr_schedule, single_schedule[index])
             assigned_sofar.append(single_schedule[index])
             print single_schedule[index], " is successfully scheduled!\n"
-            single_schedule[index] = None
+            #single_schedule[index] = None
             #if index == 3:
              #   finished_sofar = copy.copy(assigned_sofar)
             index += 1
