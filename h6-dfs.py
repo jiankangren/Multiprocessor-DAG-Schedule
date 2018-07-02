@@ -66,7 +66,7 @@ d2 = {0: [7, 11],
           19: []}
 
 # DAG3 from Arian
-graph = { 0: [4, 8],
+d3 = { 0: [4, 8],
           1: [8],
           2: [13, 17],
           3: [17],
@@ -112,7 +112,7 @@ d4  = {0: [12],
          19: [18]}
 
 # Example graph.
-test = {0: [3],
+graph = {0: [3],
      1: [4, 2],
      2: [5, 3],
      3: [],
@@ -271,11 +271,78 @@ def tmb_cost(graph, assigned_sofar):
     #print tmb
     return tmb
 
+
+
+def find_all_paths(graph, start, end, path=[]):
+    path = path + [start]
+    if start == end:
+        return [path]
+    if not graph.has_key(start):
+        return None
+    paths = []
+    for node in graph[start]:
+        if node not in path:
+            newpaths = find_all_paths(graph, node, end, path)
+            for newpath in newpaths:
+                paths.append(newpath)
+    return paths
+
+
+def get_depth_of_node(graph, node):
+    ancestors = find_all_ancestors(graph, node)
+    depth = -1
+    furthest = -666
+    if not ancestors:
+
+        print "NODE ", node, " is a root, so depth is ", 0
+        return 0
+
+    else:
+        for anc in ancestors:
+            distance = -1
+            paths = find_all_paths(graph, anc, node)
+            for path in paths:
+                if len(path) > distance:
+                    distance = len(path)
+            # print "distance is ", distance, " for ", anc, " to ", node
+            if distance > depth:
+                depth = distance
+                furthest = anc
+
+    print "DEPTH of ", node, " IS ", depth
+    return depth
+
+
+
+# Find the DFS schedule for assigned_sofar partial schedule.
+def dfs_schedule(graph, assigned_sofar):
+    #schedulables = find_schedulables(graph, assigned_sofar)
+    dfs = copy.copy(assigned_sofar)
+    furthest = -666
+    depth = -1
+    #print "assigned_sofar ", assigned_sofar
+    while len(dfs) != tnum:
+      schedulables = find_schedulables(graph, dfs)
+      print "Schedulables for ", dfs, " are ", schedulables
+      for task in schedulables:
+        temp = get_depth_of_node(graph, task)
+        if temp > depth:
+          depth = temp
+          furthest = task
+
+      print "Next to schedule: ", furthest, " with depth of ", depth
+
+      dfs.append(furthest)
+      depth = -1
+      furthest = -666
+    return dfs
+
+
 # Find the next schedulable in a greedy way.
 def find_next_schedulable(graph, assigned_sofar, to_remove):
     flag = True
-    #print assigned_sofar
     all_schedulables = find_schedulables(graph, assigned_sofar)
+    #print "all_schedulables in find_next_sch: ", all_schedulables
     # need to remove all the assigned tasks from all schedulables.
     schedulables = [x for x in all_schedulables if x not in to_remove]
     print "schedulables ", schedulables
@@ -294,7 +361,8 @@ def find_next_schedulable(graph, assigned_sofar, to_remove):
     #print "init cost: ", cost
         for task in schedulables:
             assigned_sofar.append(task)
-            new_cost = tmb_cost(graph, assigned_sofar)
+            dfs = dfs_schedule(graph, assigned_sofar)
+            new_cost = tmb_cost(graph, dfs)
             if new_cost < cost:
                 cost = new_cost
                 fav = task
@@ -380,6 +448,7 @@ if __name__ == "__main__":
             else:
                 start_time = time.time()
                 finished_sofar.append(newDoneTask)
+                print "finished_sofar: ", finished_sofar, " assigned_sofar: ", assigned_sofar
                 todo = find_next_schedulable(graph, finished_sofar, assigned_sofar)
                 if todo != 88888:
                     print "The next todo is: ", todo
