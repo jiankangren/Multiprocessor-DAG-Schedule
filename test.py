@@ -1,5 +1,6 @@
-# h6: get an starting schedule from a* first, then assign the tasks in an online fashion: 
-# generate a complete schedule for each schedulable task and choose the one with the lowest cost.
+# h8: get an starting schedule from a* first, then assign the tasks in an online fashion:
+# generate a complete schedule for each schedulable task with tmb,
+# and choose the one with the lowest cost.
 
 from __future__ import division
 import math
@@ -7,7 +8,7 @@ import time
 import copy
 
 
-print "Start process of computing multi-processor schedule with heuristic 6"
+print "Start process of computing multi-processor schedule with heuristic 8"
 
 pnum = int(raw_input("Number of processors:"))
 tnum = int(raw_input("Number of tasks:"))
@@ -121,10 +122,10 @@ graph = {0: [3],
 
 weight = {0: 2920,
           1: 225,
-          2: 4038,
+          2: 5623,
           3: 11,
-          4: 1,
-          5: 1,
+          4: 4039,
+          5: 54,
           6: 1,
           7: 1,
           8: 1,
@@ -132,15 +133,8 @@ weight = {0: 2920,
           10: 1,
           11: 1,
           12: 1,
-          13: 1,
-          14: 1,
-          15: 1,
-          16: 1,
-          17: 1,
-          18: 1,
-          19: 1,
-          20: 1,
-          21: 1}
+          13: 1}
+
 
 # def wtmb_edge(graph, weight, start, end):
 #     if end in graph[start]:
@@ -211,7 +205,7 @@ def find_successors(graph, target):
     for i in task_list:
             if i != target and find_edge(graph, target, i):
                 successors.append(i)
-    
+
     return successors
 
 def find_all_ancestors(graph, target):
@@ -220,7 +214,7 @@ def find_all_ancestors(graph, target):
     for i in task_list:
             if i != target and (find_path(graph, i, target) != None):
                 ancestors.append(i)
-    
+
     return ancestors
 
 
@@ -237,7 +231,7 @@ def find_schedulables(graph, assigned_sofar):
     for task in range(tnum):
         if (task not in assigned_sofar) and check_schedulable(graph, assigned_sofar, task):
             schedulables.append(task)
-    
+
     return schedulables
 
 # Distance between u's last successor and u.
@@ -251,7 +245,7 @@ def max_distance(task, successors, assigned_sofar):
             #print temp," for task ", t
     return temp - u
 
-def wtmb_cost(graph, assigned_sofar):
+def tmb_cost(graph, assigned_sofar):
     #schedulables = find_schedulables(graph, assigned_sofar)
     tmb = 0
     #print "assigned_sofar ", assigned_sofar
@@ -265,26 +259,6 @@ def wtmb_cost(graph, assigned_sofar):
             #print "Triggerred 2, all successors scheduled"
         else:
             tmb += weight[task] * (len(assigned_sofar) - assigned_sofar.index(task))
-            #print "Triggerred 3"
-
-        #print "Task ", task, " cost has been added, tmb is now ", tmb
-    #print tmb
-    return tmb
-
-def tmb_cost(graph, assigned_sofar):
-    #schedulables = find_schedulables(graph, assigned_sofar)
-    tmb = 0
-    #print "assigned_sofar ", assigned_sofar
-    for task in assigned_sofar:
-        successors = find_successors(graph, task)
-        if successors == []:
-            #print "Triggerred 1, no successors"
-            continue
-        elif set(assigned_sofar).issuperset(successors):
-            tmb += max_distance(task, successors, assigned_sofar)
-            #print "Triggerred 2, all successors scheduled"
-        else:
-            tmb += len(assigned_sofar) - assigned_sofar.index(task)
             #print "Triggerred 3"
 
         #print "Task ", task, " cost has been added, tmb is now ", tmb
@@ -314,7 +288,7 @@ def get_depth_of_node(graph, node):
     furthest = -666
     if not ancestors:
 
-        print "NODE ", node, " is a root, so depth is ", 0
+        # print "NODE ", node, " is a root, so depth is ", 0
         return 0
 
     else:
@@ -329,102 +303,37 @@ def get_depth_of_node(graph, node):
                 depth = distance
                 furthest = anc
 
-    print "DEPTH of ", node, " IS ", depth
+    # print "DEPTH of ", node, " IS ", depth
     return depth
 
 
 
-# Find the DFS schedule for assigned_sofar partial schedule.
+# Find the tmb-DFS schedule for assigned_sofar partial schedule.
 def dfs_schedule(graph, assigned_sofar):
-    #schedulables = find_schedulables(graph, assigned_sofar)
+    # schedulables = find_schedulables(graph, assigned_sofar)
     dfs = copy.copy(assigned_sofar)
     furthest = -666
-    depth = -1
-    #print "assigned_sofar ", assigned_sofar
+    # print "assigned_sofar ", assigned_sofar
     while len(dfs) != tnum:
       schedulables = find_schedulables(graph, dfs)
-      print "Schedulables for ", dfs, " are ", schedulables
+      # print "Schedulables for ", dfs, " are ", schedulables
+      first_schedule = copy.copy(dfs)
+      first_schedule.append(schedulables[0])
+      best = tmb_cost(graph, first_schedule)
+      print "First schedule: ", first_schedule
       for task in schedulables:
-        temp = get_depth_of_node(graph, task)
-        if temp > depth:
-          depth = temp
+        assigned_sofar.append(task)
+        temp = tmb_cost(graph, assigned_sofar)
+        assigned_sofar.pop()
+        if temp <= best:
+          best = temp
           furthest = task
+          print "Better!!! ", best, " with task ", furthest
 
-      print "Next to schedule: ", furthest, " with depth of ", depth
+       # print "Next to schedule: ", furthest, " with depth of ", depth
 
       dfs.append(furthest)
-      depth = -1
       furthest = -666
     return dfs
 
-   
-
-# Find the next schedulable in a greedy way.
-def find_next_schedulable(graph, assigned_sofar, to_remove):
-    flag = True
-    #print assigned_sofar
-    all_schedulables = find_schedulables(graph, assigned_sofar)
-    # need to remove all the assigned tasks from all schedulables.
-    schedulables = [x for x in all_schedulables if x not in to_remove]
-    print "schedulables ", schedulables
-    # Greedy.
-    #init = assigned_sofar
-    #init.append(schedulables[0])
-    # print " init ", init
-    #cost = tmb_cost(graph, init)
-
-    cost = 1000000
-    if not schedulables:
-        print "No more schedulable task at this time... :( "
-        return 88888
-    else:
-        fav = schedulables[0]
-    #print "init cost: ", cost
-        for task in schedulables:
-            assigned_sofar.append(task)
-            dfs = dfs_schedule(graph, assigned_sofar)
-            new_cost = tmb_cost(graph, dfs)
-            if new_cost < cost:
-                cost = new_cost
-                fav = task
-                # print "new best cost ", cost, " for task ", task
-            assigned_sofar.pop()
-        #print "The best: ", fav
-    return fav
-
-
-# Always find the schedule with most empty slots; break ties arbitrarily.
-def find_processor(pr_schedule):
-    tmax = 0
-    processor = -1
-    for item in pr_schedule:
-        tmp = sum(x is None for x in item)
-        if tmp > tmax:
-            tmax = tmp
-            processor = pr_schedule.index(item)
-    if processor == -1:
-        print "No slot available now!"
-        return
-    else:
-        return processor
-
-
-def assign_task(pr_schedule, task):
-    processor = find_processor(pr_schedule)
-    index = pr_schedule[processor].index(next(slot for slot in pr_schedule[processor] if slot is None))
-    #print index
-    pr_schedule[processor][index] = task
-    print "Task ", task, "assigned to processor ", processor, " at slot ", index
-
-
-def assign_task_to_core(pr_schedule, task, core):
-    processor = core
-    index = pr_schedule[processor].index(next(slot for slot in pr_schedule[processor] if slot is None))
-    #print index
-    pr_schedule[processor][index] = task
-    print "Task ", task, "assigned to processor ", processor, " at slot ", index
-
-
-#print dfs_schedule(graph, [0])
-#print tmb_cost(graph, [0,1,2,3,5,4])
-print find_next_schedulable(graph, [1], [0,1,2,3])
+print dfs_schedule(graph, [1,2])
