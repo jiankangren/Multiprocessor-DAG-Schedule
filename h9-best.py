@@ -1,4 +1,4 @@
-# h7: get an starting schedule from a* first, then assign the tasks in an online fashion:
+# h9: get an starting schedule from a* first, then assign the tasks in an online fashion:
 # generate several complete schedule for each schedulable task with shotgun method,
 # and choose the one with the lowest cost.
 
@@ -8,7 +8,7 @@ import time
 import copy
 import random
 
-print "Start process of computing multi-processor schedule with heuristic 7"
+print "Start process of computing multi-processor schedule with heuristic 9"
 
 pnum = int(raw_input("Number of processors:"))
 tnum = int(raw_input("Number of tasks:"))
@@ -66,7 +66,7 @@ d2 = {0: [7, 11],
       19: []}
 
 # DAG3 from Arian
-d3 = {0: [4, 8],
+graph = {0: [4, 8],
       1: [8],
       2: [13, 17],
       3: [17],
@@ -90,7 +90,7 @@ d3 = {0: [4, 8],
       21: []}
 
 # SIPHT i.e. dag4.
-graph = {0: [12],
+d4 = {0: [12],
       1: [12],
       2: [12],
       3: [12],
@@ -123,14 +123,14 @@ weight = {0: 2.92,
           1: 0.225,
           2: 4.038,
           3: 0.011,
-          4: 5.621,
-          5: 1.466,
-          6: 0.374,
-          7: 0.111,
-          8: 0.042,
-          9: 0.17,
-          10: 0.103,
-          11: 0.054,
+          4: 0.001,
+          5: 0.001,
+          6: 0.001,
+          7: 0.001,
+          8: 0.001,
+          9: 0.001,
+          10: 0.001,
+          11: 0.001,
           12: 0.001,
           13: 0.001,
           14: 0.001,
@@ -138,7 +138,9 @@ weight = {0: 2.92,
           16: 0.001,
           17: 0.001,
           18: 0.001,
-          19: 0.001}
+          19: 0.001,
+          20: 0.001,
+          21: 0.001}
 
 # def wtmb_edge(graph, weight, start, end):
 #     if end in graph[start]:
@@ -400,7 +402,7 @@ def find_next_schedulable(graph, assigned_sofar, to_remove):
         for task in schedulables:
             assigned_sofar.append(task)
             best_schedule = best_of_shotgun(graph, assigned_sofar)
-            new_cost = tmb_cost(graph, best_schedule)
+            new_cost = tmb_cost(graph, best_schedule) - tmb_cost(graph, assigned_sofar)
             if new_cost < cost:
                 cost = new_cost
                 fav = task
