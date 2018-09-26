@@ -136,7 +136,7 @@ def baseline2(graph, pnum, tnum):
     # while single_schedule != [None]*tnum:
 
     for n in range(tnum):
-        if len(delayed) > 2:
+        if len(delayed) > 20:
             for k in delayed_index:
                 print "Have to schedule DELAYED task: ", single_schedule[k]
                 assign_task(pr_schedule, single_schedule[k])
