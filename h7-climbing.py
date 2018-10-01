@@ -27,6 +27,8 @@ delayed = list()
 
 pr_schedule = []
 
+global_count = 0
+
 # DAG1 - 7Q
 d1 = {0: [7, 11],
          1: [11],
@@ -66,7 +68,7 @@ d2 = {0: [7, 11],
       19: []}
 
 # DAG3 from Arian
-graph = {0: [4, 8],
+d3 = {0: [4, 8],
       1: [8],
       2: [13, 17],
       3: [17],
@@ -111,6 +113,21 @@ d4 = {0: [12],
       18: [],
       19: [18]}
 
+graph = {0: [1],
+         1: [2],
+         2: [3],
+         3: [4],
+         4: [5, 6, 8, 10, 12],
+         5: [],
+         6: [7],
+         7: [],
+         8: [9],
+         9: [],
+         10: [11],
+         11: [],
+         12: [13],
+         13: []}
+
 # Example graph.
 test = {0: [3],
         1: [4, 2],
@@ -119,28 +136,20 @@ test = {0: [3],
         4: [],
         5: []}
 
-weight = {0: 2.92,
-          1: 0.225,
-          2: 4.038,
-          3: 0.011,
-          4: 0.001,
-          5: 0.001,
-          6: 0.001,
-          7: 0.001,
-          8: 0.001,
-          9: 0.001,
-          10: 0.001,
-          11: 0.001,
-          12: 0.001,
-          13: 0.001,
-          14: 0.001,
-          15: 0.001,
-          16: 0.001,
-          17: 0.001,
-          18: 0.001,
-          19: 0.001,
-          20: 0.001,
-          21: 0.001}
+weight = {0: 1,
+          1: 1,
+          2: 1,
+          3: 1,
+          4: 1,
+          5: 1,
+          6: 1,
+          7: 1,
+          8: 1,
+          9: 1,
+          10: 1,
+          11: 1,
+          12: 1,
+          13: 1}
 
 # def wtmb_edge(graph, weight, start, end):
 #     if end in graph[start]:
@@ -358,9 +367,12 @@ def shotgun_schedules(graph, assigned_sofar):
     schedules = []
     dfs = dfs_schedule(graph, assigned_sofar)
     schedules.append(dfs)
+    global global_count
+    global_count += 1
 
     for i in range(9):
         schedule = find_a_schedule(graph, assigned_sofar)
+        global_count += 1
         print "Schedule appended! "
         schedules.append(schedule)
 
@@ -507,3 +519,4 @@ if __name__ == "__main__":
     #   print delayed
     print single_schedule_intact
 
+print "GLOBAL COUNT: ", global_count
