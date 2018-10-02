@@ -1,3 +1,6 @@
+drop materialized view v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15;
+
+
 0:
 create materialized view v0 as select * from store_sales;
 
@@ -102,7 +105,8 @@ from v5;
 7:
 create materialized view v7 as
 select * from v2, v5 
-where ss_item_sk = inv_item_sk;
+where ss_item_sk = inv_item_sk
+limit 10000000;
 
 
 8:
