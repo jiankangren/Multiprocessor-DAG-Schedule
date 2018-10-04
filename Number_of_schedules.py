@@ -219,7 +219,7 @@ def find_successors(graph, target):
     for i in task_list:
             if i != target and find_edge(graph, target, i):
                 successors.append(i)
-    
+
     return successors
 
 def find_all_ancestors(graph, target):
@@ -245,68 +245,8 @@ def find_schedulables(graph, assigned_sofar):
     for task in range(tnum):
         if (task not in assigned_sofar) and check_schedulable(graph, assigned_sofar, task):
             schedulables.append(task)
-    
+
     return schedulables
-
-# Distance between u's last successor and u.
-def max_distance(task, successors, assigned_sofar):
-    u = assigned_sofar.index(task)
-    temp = u
-    #print "u is ", u
-    for t in successors:
-        if assigned_sofar.index(t) > temp:
-            temp = assigned_sofar.index(t)
-            #print temp," for task ", t
-    return temp - u
-
-
-# Here it's assumed that all tasks in assigned_sofar are finished.
-# In retrospect it should be finished_sofar.
-def tmb_cost(graph, assigned_sofar):
-    #schedulables = find_schedulables(graph, assigned_sofar)
-    tmb = 0
-    #print "assigned_sofar ", assigned_sofar
-    for task in assigned_sofar:
-        successors = find_successors(graph, task)
-        if successors == []:
-            #print "Triggerred 1, no successors"
-            continue
-        elif set(assigned_sofar).issuperset(successors):
-            tmb += max_distance(task, successors, assigned_sofar)
-            #print "Triggerred 2, all successors scheduled"
-        else:
-            tmb += len(assigned_sofar) - assigned_sofar.index(task)
-            #print "Triggerred 3"
-
-        #print "Task ", task, " cost has been added, tmb is now ", tmb
-    #print tmb
-    return tmb
-
-
-
-# Cost of the path from the start node to x. 
-# In our case it's (w)tmb_cost(s).
-def gx(graph, assigned_sofar, task):
-    cost = 0
-    assigned_sofar.append(task)
-    cost = tmb_cost(graph, assigned_sofar)
-    assigned_sofar.pop()
-    # print cost
-    return cost
-
-# Estimation of cost of path from x to sink node.
-# In our case it's the sum of outgoing edges for each task that hasn't been scheduled.
-def hx(graph, assigned_sofar, task):
-    cost = 0
-    assigned_sofar.append(task)
-    # print "s = ", assigned_sofar
-    for i in range(tnum):
-        if i not in assigned_sofar:
-            # print "cost of ", i, len(graph[i])
-            cost += len(graph[i])  
-    assigned_sofar.pop()
-    # print "s = ", assigned_sofar
-    return cost  
 
 
 def all_roots(graph):
@@ -393,8 +333,6 @@ def find_next_schedulable(graph, paths, single_schedule, index, finished_sofar, 
 
                 if path_bool:
                     new_cost = hx(graph, prefix, task) + gx(graph, prefix, task)
-                    global global_count
-                    global_count += 1
                     #print "New cost: ", new_cost
                     if new_cost < cost:
                         cost = new_cost
@@ -482,7 +420,7 @@ if __name__ == "__main__":
 
             if newDoneTask == 66666:
                 print "All tasks scheduled! Job scheduling completed. "
-                break 
+                break
 
             else:
                 start_time = time.time()
@@ -507,4 +445,3 @@ if __name__ == "__main__":
 #   print delayed
     print single_schedule_intact
 
-    print "GLOBAL COUNT: ", global_count
