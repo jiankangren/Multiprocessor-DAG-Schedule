@@ -241,12 +241,35 @@ def find_schedulables(graph, assigned_sofar):
     return schedulables
 
 
+
+##########################################
+
+def find_parents(graph, target):
+    parents = []
+    task_list = list(range(0, tnum))
+    for i in task_list:
+            if i != target and (find_edge(graph, i, target) != None):
+                parents.append(i)
+
+    return parents
+
 # Check if two tasks share a data item. If so, return the items shared.
-def find_shared_data():
-
-
-# Find all tasks that share a same data item.
-def find_all_siblings():
+def find_shared_data(graph, task_assigned, task_to_assign):
+    set_tts =  set(find_parents(graph, task_to_assign))
+    set_ta = set(find_parents(graph, task_assigned))
+    if task_assigned == task_to_assign:
+        empty_set = {}
+        print "No shared data, start == end!!"
+        return empty_set
+    if (len(set_tts) == 0) or (len(set_ta) == 0):
+        empty_set = {}
+        print "No shared data, some task has no parents!!"
+        return empty_set
+    elif set_tts == set_ta:
+        return set_tts
+    else:
+        common = set_tts.intersection(set_ta)
+        return common
 
 
 # Distance between u's last successor and u.
@@ -260,25 +283,31 @@ def max_distance(task, successors, assigned_sofar):
             #print temp," for task ", t
     return temp - u
 
-def tmb_cost(graph, assigned_sofar):
+def dba_cost(graph, assigned_sofar):
     #schedulables = find_schedulables(graph, assigned_sofar)
-    tmb = 0
+    dba = 0
+    temp = 0
     #print "assigned_sofar ", assigned_sofar
-    for task in assigned_sofar:
-        successors = find_successors(graph, task)
-        if successors == []:
-            #print "Triggerred 1, no successors"
-            continue
-        elif set(assigned_sofar).issuperset(successors):
-            tmb += weight[task] * max_distance(task, successors, assigned_sofar)
+
+    for i in range(len(assigned_sofar)):
+        for j in range(i):
+            shared = find_shared_data(graph, assigned_sofar[j], assigned_sofar[i])
+
+            if len(shared) == 0:
+                print "Trigger 1, no shared"
+                continue
+            else:
+                for item in shared:
+                    if temp < weight[item] * (i - j - 1):
+                        temp = weight[item] * (i - j - 1)
+
+                dba += temp
             #print "Triggerred 2, all successors scheduled"
-        else:
-            tmb += weight[task] * (len(assigned_sofar) - assigned_sofar.index(task))
-            #print "Triggerred 3"
+
 
         #print "Task ", task, " cost has been added, tmb is now ", tmb
     #print tmb
-    return tmb
+    return dba
 
 # Find the next schedulable in a greedy way.
 def find_next_schedulable(graph, assigned_sofar, to_remove):
@@ -303,7 +332,7 @@ def find_next_schedulable(graph, assigned_sofar, to_remove):
     #print "init cost: ", cost
         for task in schedulables:
             assigned_sofar.append(task)
-            new_cost = tmb_cost(graph, assigned_sofar)
+            new_cost = dba_cost(graph, assigned_sofar)
             if new_cost < cost:
                 cost = new_cost
                 fav = task
