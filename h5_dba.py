@@ -66,7 +66,7 @@ d2 = {0: [7, 11],
 
 
 # DAG3 from Arian
-graph = { 0: [4, 8],
+d3 = { 0: [4, 8],
           1: [8],
           2: [13, 17],
           3: [17],
@@ -90,7 +90,7 @@ graph = { 0: [4, 8],
           21: []}
 
 #SIPHT i.e. dag4.
-d4  = {0: [12],
+graph  = {0: [12],
          1: [12],
          2: [12],
          3: [12],
@@ -123,14 +123,14 @@ weight = {0: 2.92,
           1: 0.225,
           2: 4.038,
           3: 0.011,
-          4: 0.001,
-          5: 0.001,
-          6: 0.001,
-          7: 0.001,
-          8: 0.001,
-          9: 0.001,
-          10: 0.001,
-          11: 0.001,
+          4: 5.621,
+          5: 1.466,
+          6: 0.374,
+          7: 0.111,
+          8: 0.042,
+          9: 0.17,
+          10: 0.103,
+          11: 0.054,
           12: 0.001,
           13: 0.001,
           14: 0.001,
@@ -138,9 +138,7 @@ weight = {0: 2.92,
           16: 0.001,
           17: 0.001,
           18: 0.001,
-          19: 0.001,
-          20: 0.001,
-          21: 0.001}
+          19: 0.001}
 
 # def wtmb_edge(graph, weight, start, end):
 #     if end in graph[start]:
@@ -248,7 +246,7 @@ def find_parents(graph, target):
     parents = []
     task_list = list(range(0, tnum))
     for i in task_list:
-            if i != target and (find_edge(graph, i, target) != None):
+            if i != target and (find_edge(graph, i, target) == True):
                 parents.append(i)
 
     return parents
@@ -257,19 +255,20 @@ def find_parents(graph, target):
 def find_shared_data(graph, task_assigned, task_to_assign):
     set_tts =  set(find_parents(graph, task_to_assign))
     set_ta = set(find_parents(graph, task_assigned))
+    results = []
+    if task_assigned in find_parents(graph, task_to_assign):
+        results.append(task_assigned)
     if task_assigned == task_to_assign:
-        empty_set = {}
         print "No shared data, start == end!!"
-        return empty_set
+        return set(results)
     if (len(set_tts) == 0) or (len(set_ta) == 0):
-        empty_set = {}
-        print "No shared data, some task has no parents!!"
-        return empty_set
+        #print "No shared data, some task has no parents!!"
+        return set(results)
     elif set_tts == set_ta:
         return set_tts
     else:
-        common = set_tts.intersection(set_ta)
-        return common
+        results = set_tts.intersection(set_ta)
+        return set(results)
 
 
 # Distance between u's last successor and u.
@@ -286,28 +285,34 @@ def max_distance(task, successors, assigned_sofar):
 def dba_cost(graph, assigned_sofar):
     #schedulables = find_schedulables(graph, assigned_sofar)
     dba = 0
-    temp = 0
     #print "assigned_sofar ", assigned_sofar
 
     for i in range(len(assigned_sofar)):
         for j in range(i):
+            temp = 0
             shared = find_shared_data(graph, assigned_sofar[j], assigned_sofar[i])
 
             if len(shared) == 0:
-                print "Trigger 1, no shared"
+                print "Trigger 1, no shared for ", j, " to ", i
                 continue
             else:
                 for item in shared:
+                    data = None
                     if temp < weight[item] * (i - j - 1):
                         temp = weight[item] * (i - j - 1)
+                        print "Trigger 2, cost for data item ", item, " is ", temp, " between ", j, " and ", i
+                        data = item
+                flag = False
+                for k in range(j+1, i):
+                    if data in find_shared_data(graph, assigned_sofar[k], assigned_sofar[i]):
+                        flag = True
+                        print "But later access found! "
+                if flag == False:
+                    dba += temp
+                    print "COST ADDED to total between ", j, " and ", i
 
-                dba += temp
-            #print "Triggerred 2, all successors scheduled"
-
-
-        #print "Task ", task, " cost has been added, tmb is now ", tmb
-    #print tmb
     return dba
+
 
 # Find the next schedulable in a greedy way.
 def find_next_schedulable(graph, assigned_sofar, to_remove):
@@ -333,7 +338,7 @@ def find_next_schedulable(graph, assigned_sofar, to_remove):
         for task in schedulables:
             assigned_sofar.append(task)
             new_cost = dba_cost(graph, assigned_sofar)
-            if new_cost < cost:
+            if new_cost > cost:
                 cost = new_cost
                 fav = task
                 print "new best cost ", cost, " for task ", task

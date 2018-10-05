@@ -1,23 +1,19 @@
-# h8: get an starting schedule from a* first, then assign the tasks in an online fashion:
-# generate a complete schedule for each schedulable task with tmb,
-# and choose the one with the lowest cost.
-
 from __future__ import division
 import math
 import time
 import copy
 
 
-print "Start process of computing multi-processor schedule with heuristic 8"
+print "Start process of computing multi-processor schedule with heuristic 5"
 
-pnum = int(raw_input("Number of processors:"))
+#pnum = int(raw_input("Number of processors:"))
 tnum = int(raw_input("Number of tasks:"))
-arian = raw_input(("Enter the starting single-thread schedule:"))
-single_schedule = map(int, arian.split(' '))
+#arian = raw_input(("Enter the starting single-thread schedule:"))
+#single_schedule = map(int, arian.split(' '))
 
-print single_schedule
+#print single_schedule
 
-single_schedule_intact = list(single_schedule)
+#single_schedule_intact = list(single_schedule)
 
 assigned_sofar = list()
 finished_sofar = list()
@@ -66,6 +62,7 @@ d2 = {0: [7, 11],
           18: [],
           19: []}
 
+
 # DAG3 from Arian
 d3 = { 0: [4, 8],
           1: [8],
@@ -113,28 +110,26 @@ d4  = {0: [12],
          19: [18]}
 
 # Example graph.
-graph = {0: [3],
+test1 = {0: [1,3,5],
+     1: [],
+     2: [],
+     3: [],
+     4: [],
+     5: []}
+
+test2 = {0: [3],
      1: [4, 2],
      2: [5, 3],
      3: [],
      4: [],
      5: []}
 
-weight = {0: 2920,
-          1: 225,
-          2: 5623,
-          3: 11,
-          4: 4039,
-          5: 54,
-          6: 1,
-          7: 1,
-          8: 1,
-          9: 1,
-          10: 1,
-          11: 1,
-          12: 1,
-          13: 1}
-
+weight = {0: 1,
+          1: 1,
+          2: 1,
+          3: 1,
+          4: 1,
+          5: 1}
 
 # def wtmb_edge(graph, weight, start, end):
 #     if end in graph[start]:
@@ -234,6 +229,39 @@ def find_schedulables(graph, assigned_sofar):
 
     return schedulables
 
+
+
+##########################################
+
+def find_parents(graph, target):
+    parents = []
+    task_list = list(range(0, tnum))
+    for i in task_list:
+            if i != target and (find_edge(graph, i, target) == True):
+                parents.append(i)
+
+    return parents
+
+# Check if two tasks share a data item. If so, return the items shared.
+def find_shared_data(graph, task_assigned, task_to_assign):
+    set_tts =  set(find_parents(graph, task_to_assign))
+    set_ta = set(find_parents(graph, task_assigned))
+    results = []
+    if task_assigned in find_parents(graph, task_to_assign):
+        results.append(task_assigned)
+    if task_assigned == task_to_assign:
+        print "No shared data, start == end!!"
+        return set(results)
+    if (len(set_tts) == 0) or (len(set_ta) == 0):
+        #print "No shared data, some task has no parents!!"
+        return set(results)
+    elif set_tts == set_ta:
+        return set_tts
+    else:
+        results = set_tts.intersection(set_ta)
+        return set(results)
+
+
 # Distance between u's last successor and u.
 def max_distance(task, successors, assigned_sofar):
     u = assigned_sofar.index(task)
@@ -245,95 +273,38 @@ def max_distance(task, successors, assigned_sofar):
             #print temp," for task ", t
     return temp - u
 
-def tmb_cost(graph, assigned_sofar):
+def dba_cost(graph, assigned_sofar):
     #schedulables = find_schedulables(graph, assigned_sofar)
-    tmb = 0
+    dba = 0
     #print "assigned_sofar ", assigned_sofar
-    for task in assigned_sofar:
-        successors = find_successors(graph, task)
-        if successors == []:
-            #print "Triggerred 1, no successors"
-            continue
-        elif set(assigned_sofar).issuperset(successors):
-            tmb += weight[task] * max_distance(task, successors, assigned_sofar)
-            #print "Triggerred 2, all successors scheduled"
-        else:
-            tmb += weight[task] * (len(assigned_sofar) - assigned_sofar.index(task))
-            #print "Triggerred 3"
 
-        #print "Task ", task, " cost has been added, tmb is now ", tmb
-    #print tmb
-    return tmb
+    for i in range(len(assigned_sofar)):
+        for j in range(i):
+            temp = 0
+            shared = find_shared_data(graph, assigned_sofar[j], assigned_sofar[i])
 
+            if len(shared) == 0:
+                print "Trigger 1, no shared for ", j, " to ", i
+                continue
+            else:
+                for item in shared:
+                    data = None
+                    if temp < weight[item] * (i - j - 1):
+                        temp = weight[item] * (i - j - 1)
+                        print "Trigger 2, cost for data item ", item, " is ", temp, " between ", j, " and ", i
+                        data = item
+                flag = False
+                for k in range(j+1, i):
+                    if data in find_shared_data(graph, assigned_sofar[k], assigned_sofar[i]):
+                        flag = True
+                        print "But later access found! "
+                if flag == False:
+                    dba += temp
+                    print "COST ADDED to total between ", j, " and ", i
 
-
-def find_all_paths(graph, start, end, path=[]):
-    path = path + [start]
-    if start == end:
-        return [path]
-    if not graph.has_key(start):
-        return None
-    paths = []
-    for node in graph[start]:
-        if node not in path:
-            newpaths = find_all_paths(graph, node, end, path)
-            for newpath in newpaths:
-                paths.append(newpath)
-    return paths
+    return dba
 
 
-def get_depth_of_node(graph, node):
-    ancestors = find_all_ancestors(graph, node)
-    depth = -1
-    furthest = -666
-    if not ancestors:
-
-        # print "NODE ", node, " is a root, so depth is ", 0
-        return 0
-
-    else:
-        for anc in ancestors:
-            distance = -1
-            paths = find_all_paths(graph, anc, node)
-            for path in paths:
-                if len(path) > distance:
-                    distance = len(path)
-            # print "distance is ", distance, " for ", anc, " to ", node
-            if distance > depth:
-                depth = distance
-                furthest = anc
-
-    # print "DEPTH of ", node, " IS ", depth
-    return depth
-
-
-
-# Find the tmb-DFS schedule for assigned_sofar partial schedule.
-def dfs_schedule(graph, assigned_sofar):
-    # schedulables = find_schedulables(graph, assigned_sofar)
-    dfs = copy.copy(assigned_sofar)
-    furthest = -666
-    # print "assigned_sofar ", assigned_sofar
-    while len(dfs) != tnum:
-      schedulables = find_schedulables(graph, dfs)
-      # print "Schedulables for ", dfs, " are ", schedulables
-      first_schedule = copy.copy(dfs)
-      first_schedule.append(schedulables[0])
-      best = tmb_cost(graph, first_schedule)
-      print "First schedule: ", first_schedule
-      for task in schedulables:
-        assigned_sofar.append(task)
-        temp = tmb_cost(graph, assigned_sofar)
-        assigned_sofar.pop()
-        if temp <= best:
-          best = temp
-          furthest = task
-          print "Better!!! ", best, " with task ", furthest
-
-       # print "Next to schedule: ", furthest, " with depth of ", depth
-
-      dfs.append(furthest)
-      furthest = -666
-    return dfs
-
-print dfs_schedule(graph, [1,2])
+#print find_parents(test1, 5)
+#print find_shared_data(test1, 0, 1)
+print dba_cost(test1, [0,1,2,3,4,5])
