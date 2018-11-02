@@ -187,3 +187,20 @@ from v13;
 create table v15 as
 select ss_item_sk
 from v14;
+
+
+
+create table inventory_text
+(
+inv_date_sk               int,
+inv_item_sk               int,
+inv_warehouse_sk          int,
+inv_quantity_on_hand      bigint
+)
+USING csv
+OPTIONS(header "false", delimiter "|", path "/home/tpcds/inventory.dat");
+
+cache table inventory_text;
+
+
+select count(*) from inventory_text where inv_date_sk = 2450815;
