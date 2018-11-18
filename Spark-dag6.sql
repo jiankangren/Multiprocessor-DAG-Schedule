@@ -204,3 +204,13 @@ cache table inventory_text;
 
 
 select count(*) from inventory_text where inv_date_sk = 2450815;
+
+
+
+inv = sc.textFile('hdfs://home/tpcds/store_sales.dat')
+inv_t = sales.map(lambda x: x.split('|')).map(lambda x: Row(id=x[0], c1=x[1], c2=x[2], c3=x[3]))
+tbl = sqlContext.inferSchema(sales_t)
+tbl.registerTempTable('inventory')
+sqlContext.sql('select * from inventory').collect()
+
+
