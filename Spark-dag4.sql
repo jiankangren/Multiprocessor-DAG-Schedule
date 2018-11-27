@@ -49,7 +49,7 @@ select cs_sold_date_sk
       ,d_date_sk
       ,d_date
 from v0 cross join v1 cross join v2 cross join v3
-limit 50000000;
+limit 50000;
 
 
 13:
@@ -68,7 +68,7 @@ select v12.cs_sold_date_sk
       ,v12.cr_returned_date_sk
       ,v13.ss_item_sk
 from v12 cross join v13
-limit 50000000;
+limit 50000;
 
 
 15:
@@ -76,7 +76,7 @@ create table v15 as
 select v12.cr_returned_date_sk
       ,v12.cr_return_amount
 from v12
-limit 50000000;
+limit 50000;
 
 
 16:
@@ -84,7 +84,7 @@ create table v16 as
 select v12.ss_item_sk
       ,v12.ss_customer_sk
 from v12
-limit 50000000;
+limit 500000;
 
 
 17:
@@ -92,7 +92,7 @@ create table v17 as
 select v12.d_date_sk
       ,v12.d_date
 from v12
-limit 50000000;
+limit 500000;
 
 
 18:
@@ -105,7 +105,7 @@ select v12.cs_sales_price
       ,v17.d_date
       ,v19.i_item_id
 from v12 cross join v14 cross join v15 cross join v16 cross join v17 cross join v19
-limit 5000000;
+limit 50000;
 
 
 19:
@@ -119,4 +119,4 @@ select inv_item_sk
       ,wr_returned_time_sk
       ,i_item_id
 from v4 cross join v5 cross join v6 cross join v7 cross join v8 cross join v9 cross join v10 cross join v11
-limit 60000000;
+limit 60000;
