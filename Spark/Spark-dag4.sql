@@ -1,4 +1,35 @@
-drop table v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19;
+drop table v0; 
+drop table v1;
+drop table v2;
+drop table v3;
+drop table v4;
+drop table v5;
+drop table v6;
+drop table v7;
+drop table v8;
+drop table v9;
+drop table v10;
+drop table v11;
+drop table v12;
+drop table v13;
+drop table v14;
+drop table v15;
+drop table v16;
+drop table v17;
+drop table v18;
+drop table v19;
+drop table catalog_sales_text;
+drop table catalog_returns_text;
+drop table store_sales_text;
+drop table date_dim_text;
+drop table inventory_text;
+drop table web_sales_text;
+drop table store_returns_text;
+drop table customer_text;
+drop table customer_address_text;
+drop table customer_demographics_text;
+drop table web_returns_text;
+drop table item_text;
 
 
 0:
