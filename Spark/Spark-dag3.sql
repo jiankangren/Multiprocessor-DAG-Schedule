@@ -1,7 +1,29 @@
-drop table v_catalog_sales, v_catalog_returns, v_inventory, v_date_dim, v_store_sales, v_item, v_warehouse;
-drop table v_catalog_sales, v_catalog_returns, v_inventory, v_date_dim, v_store_sales, v_item, v_warehouse, v7, v8, v9, v10, v11, v12, v13;
-drop table v_catalog_sales, v_catalog_returns, v_inventory, v_date_dim, v_store_sales, v_item, v_warehouse, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19;
-drop table v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v15, v14, v16, v17, v18, v19, v20;
+drop table v0; 
+drop table v1;
+drop table v2;
+drop table v3;
+drop table v4;
+drop table v5;
+drop table v6;
+drop table v7;
+drop table v8;
+drop table v9;
+drop table v10;
+drop table v11;
+drop table v12;
+drop table v13;
+drop table v14;
+drop table v15;
+drop table v16;
+drop table v17;
+drop table v18;
+drop table v19;
+drop table v20;
+drop table v21;
+drop table catalog_sales_text;
+drop table catalog_returns_text;
+drop table store_sales_text;
+drop table date_dim_text;
 
 
 0:
@@ -57,8 +79,8 @@ select cs_sold_date_sk
       ,cr_returned_date_sk
       ,cr_return_amount
       ,cr_return_tax
-from v0, v1
-limit 50000000;
+from v0 cross join v1
+limit 50000;
 
 
 9:
@@ -134,8 +156,8 @@ select ss_item_sk
       ,cr_returned_date_sk
       ,d_date_sk
       ,d_date
-from v2, v3, v8
-limit 50000000;
+from v2 cross join v3 cross join v8
+limit 50000;
 
 
 18:
