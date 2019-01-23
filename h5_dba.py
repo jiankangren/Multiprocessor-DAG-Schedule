@@ -177,29 +177,29 @@ cs = { 0: [2,3,4,5],
 
 # combined.
 
-graph = {0: [7, 11, 18],
-          1: [11],
-          2: [8, 9],
-          3: [7, 8, 9, 10, 11, 12, 13, 17],
-          4: [10, 12, 13, 16],
-          5: [7, 8, 9, 10, 11, 12, 13],
-          6: [8, 9, 11],
-          7: [14],
-          8: [14],
-          9: [14],
-          10: [14],
-          11: [14],
-          12: [14],
-          13: [14],
-          14: [15],
-          15: [16, 17, 18],
-          16: [19],
-          17: [19],
-          18: [19],
-          19: [20],
-          20: [],
-          21: [23, 24, 25, 26],
-          22: [27, 28, 29, 30],
+graph = {0: [9, 13, 20],
+          1: [13],
+          2: [10, 11],
+          3: [9, 10, 11, 12, 13, 14, 15, 19],
+          4: [12, 14, 15, 18],
+          5: [9, 10, 11, 12, 13, 14, 15],
+          6: [10, 11, 13],
+          9: [16],
+          10: [16],
+          11: [16],
+          12: [16],
+          13: [16],
+          14: [16],
+          15: [16],
+          16: [17],
+          17: [18, 19, 20],
+          18: [21],
+          19: [21],
+          20: [21],
+          21: [22],
+          22: [],
+          7: [23, 24, 25, 26],
+          8: [27, 28, 29, 30],
           23: [31, 32],
           24: [31, 33],
           25: [31, 34],
@@ -421,23 +421,23 @@ def dba_cost(graph, assigned_sofar):
             shared = find_shared_data(graph, assigned_sofar[j], assigned_sofar[i])
 
             if len(shared) == 0:
-                print "Trigger 1, no shared for ", j, " to ", i
+                # print "Trigger 1, no shared for ", j, " to ", i
                 continue
             else:
                 for item in shared:
                     data = None
                     if temp < weight[item] * (i - j - 1):
                         temp = weight[item] * (i - j - 1)
-                        print "Trigger 2, cost for data item ", item, " is ", temp, " between ", j, " and ", i
+                        # print "Trigger 2, cost for data item ", item, " is ", temp, " between ", j, " and ", i
                         data = item
                 flag = False
                 for k in range(j+1, i):
                     if data in find_shared_data(graph, assigned_sofar[k], assigned_sofar[i]):
                         flag = True
-                        print "But later access found! "
+                        # print "But later access found! "
                 if flag == False:
                     dba += temp
-                    print "COST ADDED to total between ", j, " and ", i
+                    # print "COST ADDED to total between ", j, " and ", i
 
     return dba
 
