@@ -17,16 +17,16 @@ create materialized view v2 as select * from store_sales;
 create materialized view v3 as select * from date_dim;
 
 4:
-create materialized view v0 as select * from web_sales;
+create materialized view ws as select * from web_sales;
 
 5:
-create materialized view v1 as select * from inventory;
+create materialized view inv as select * from inventory;
 
 6:
-create materialized view v2 as select * from store_returns;
+create materialized view sr as select * from store_returns;
 
 7:
-create materialized view v3 as select * from web_returns;
+create materialized view wr as select * from web_returns;
 
 
 
@@ -182,3 +182,7 @@ select ss_item_sk
       ,cr_returned_date_sk
       ,d_date
 from v18;
+
+
+
+22:
